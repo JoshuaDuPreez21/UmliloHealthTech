@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Context>
+
+	       
+	  <Resource name="jdbc/MySQLDataSource" 
+          auth="Container"
+           type="javax.sql.DataSource"
+              username="root"  
+              password="admin" 
+          driverClassName="com.mysql.cj.jdbc.Driver"
+              url="jdbc:mysql://localhost:3306/UHT" 
+              
+          maxTotal="50"
+          maxIdle="20"
+          minIdle="10"
+          maxWaitMillis="10000"
+          validationQuery="SELECT 1"
+          validationQueryTimeout="5"
+          removeAbandoned="true"
+          removeAbandonedTimeout="60"
+          logAbandoned="true"/> 
+           
+    
+      <!--  <Resource name="jdbc/MySQLDataSource" 
+          auth="Container"
+           type="javax.sql.DataSource"
+              username="Joshua"
+              password="focusRS3$"
+          driverClassName="com.mysql.cj.jdbc.Driver"
+              url="jdbc:mysql://localhost:3306/KJE" 
+          maxTotal="50"
+          maxIdle="20"
+          minIdle="10"
+          maxWaitMillis="10000"
+          validationQuery="SELECT 1"
+          validationQueryTimeout="5"
+          removeAbandoned="true"
+          removeAbandonedTimeout="60"
+          logAbandoned="true"/> -->
+         
+    
+
+</Context>
