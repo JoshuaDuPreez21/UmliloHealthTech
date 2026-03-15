@@ -35,6 +35,9 @@
 		padding: 2rem;
 		box-shadow: 0 18px 40px rgba(15, 61, 62, 0.2);
 	}
+	.hero h1 {
+		font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.4rem);
+	}
 	.badge-phase {
 		background: #fbd38d;
 		color: #4a2c0a;
@@ -50,6 +53,19 @@
 		background: #0b2f30;
 		border-color: #0b2f30;
 	}
+	@media (max-width: 992px) {
+		.hero {
+			padding: 1.5rem;
+		}
+	}
+	@media (max-width: 768px) {
+		.hero {
+			padding: 1.25rem;
+		}
+		.panel .card-body {
+			padding: 1.5rem;
+		}
+	}
 </style>
 </head>
 <body>
@@ -58,6 +74,7 @@
 			<span class="fw-semibold">Umlilo HealthTech</span>
 			<div class="d-flex align-items-center gap-3">
 				<span class="text-muted">Doctor Portal</span>
+				<a href="profile.jsp" class="btn btn-sm btn-outline-primary">My Profile</a>
 				<a href="login.jsp" class="btn btn-sm btn-outline-secondary">Logout</a>
 			</div>
 		</div>

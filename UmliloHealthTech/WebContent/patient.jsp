@@ -34,6 +34,14 @@
 	.form-control, .form-select {
 		border-radius: 12px;
 	}
+	.page-title {
+		font-size: clamp(1.4rem, 1.1rem + 1.4vw, 2rem);
+	}
+	@media (max-width: 768px) {
+		.section-card .card-body {
+			padding: 1.5rem;
+		}
+	}
 	.btn-primary {
 		background: var(--brand);
 		border-color: var(--brand);
@@ -57,10 +65,10 @@
 	<div class="container py-4 py-lg-5">
 		<div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
 			<div>
-				<h1 class="h3 fw-bold mb-1">New Patient Health Profile</h1>
+				<h1 class="page-title fw-bold mb-1">New Patient Health Profile</h1>
 				<p class="text-muted mb-0">Capture personal information and illness history for first-time visits.</p>
 			</div>
-			<div class="badge bg-light text-dark border">Step 1 of 2</div>
+			
 		</div>
 
 		<div class="alert alert-info">
@@ -123,9 +131,13 @@
 									<label class="form-label">Job Title</label>
 									<input type="text" class="form-control" placeholder="Optional">
 								</div>
-								<div class="col-md-6">
-									<label class="form-label">Next of Kin</label>
-									<input type="text" class="form-control" placeholder="Name and relationship">
+								<div class="col-md-3">
+									<label class="form-label">Next of Kin Name</label>
+									<input type="text" class="form-control" placeholder="Full name">
+								</div>
+								<div class="col-md-3">
+									<label class="form-label">Relationship</label>
+									<input type="text" class="form-control" placeholder="e.g. Parent">
 								</div>
 								<div class="col-md-6">
 									<label class="form-label">Emergency Contact</label>
@@ -153,17 +165,45 @@
 				<div class="card section-card">
 					<div class="card-body p-4">
 						<h2 class="h5 section-title mb-3">Illness History</h2>
-						<p class="text-muted">Select current and historical illnesses (multi-select).</p>
-						<select class="form-select" multiple size="6">
-							<option>Diabetes</option>
-							<option>Hypertension</option>
-							<option>Asthma</option>
-							<option>HIV / AIDS</option>
-							<option>Tuberculosis</option>
-							<option>Heart Disease</option>
-							<option>Kidney Disease</option>
-							<option>Other (specify)</option>
-						</select>
+						<p class="text-muted">Select current and historical illnesses.</p>
+						<div class="row g-2">
+							<div class="col-sm-6">
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" id="illnessDiabetes">
+									<label class="form-check-label" for="illnessDiabetes">Diabetes</label>
+								</div>
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" id="illnessHypertension">
+									<label class="form-check-label" for="illnessHypertension">Hypertension</label>
+								</div>
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" id="illnessAsthma">
+									<label class="form-check-label" for="illnessAsthma">Asthma</label>
+								</div>
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" id="illnessHiv">
+									<label class="form-check-label" for="illnessHiv">HIV / AIDS</label>
+								</div>
+							</div>
+							<div class="col-sm-6">
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" id="illnessTb">
+									<label class="form-check-label" for="illnessTb">Tuberculosis</label>
+								</div>
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" id="illnessHeart">
+									<label class="form-check-label" for="illnessHeart">Heart Disease</label>
+								</div>
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" id="illnessKidney">
+									<label class="form-check-label" for="illnessKidney">Kidney Disease</label>
+								</div>
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" id="illnessOther">
+									<label class="form-check-label" for="illnessOther">Other (specify)</label>
+								</div>
+							</div>
+						</div>
 						<div class="mt-3">
 							<label class="form-label">Additional Notes</label>
 							<textarea class="form-control" rows="3" placeholder="Optional details"></textarea>

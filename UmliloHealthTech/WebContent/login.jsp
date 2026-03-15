@@ -18,13 +18,13 @@
 		--border: #e5edf2;
 	}
 	body {
-		background: linear-gradient(120deg, #edf3f6 0%, #f7f9fb 55%, #eef4f8 100%);
+		background: var(--brand);
 		min-height: 100vh;
 		font-family: "Manrope", "Segoe UI", sans-serif;
 		color: var(--ink);
 	}
 	.brand-panel {
-		background: #FFF8E1;
+		background: #ffffff;
 		color: var(--ink);
 		color: #fff;
 		border-radius: 26px;
@@ -41,7 +41,7 @@
 		content: "";
 		position: absolute;
 		inset: 0;
-		background: radial-gradient(circle at top left, rgba(27, 122, 109, 0.12), transparent 55%);
+		background: radial-gradient(circle at top left, rgba(27, 122, 109, 0.08), transparent 55%);
 		opacity: 1;
 		z-index: 0;
 	}
@@ -77,20 +77,39 @@
 		color: #fff;
 	}
 	.brand-logo {
-		width: 380px;
+		width: min(70vw, 380px);
 		height: auto;
 	}
 	.login-title {
-		font-size: 1.6rem;
+		font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
 		font-weight: 700;
 	}
 	.login-subtitle {
-		font-size: 1rem;
+		font-size: clamp(0.95rem, 0.9rem + 0.4vw, 1.1rem);
+	}
+	.auth-card {
+		min-height: 520px;
+	}
+	@media (max-width: 992px) {
+		.auth-card {
+			min-height: auto;
+		}
+		.brand-panel {
+			padding: 2rem;
+		}
+	}
+	@media (max-width: 768px) {
+		.brand-panel {
+			padding: 1.75rem;
+		}
+		.auth-card {
+			padding: 1.75rem;
+		}
 	}
 </style>
 </head>
 <body>
-	<div class="container min-vh-100 d-flex align-items-center py-5">
+	<div class="container min-vh-100 d-flex align-items-center py-4 py-lg-5">
 		<div class="row g-4 align-items-stretch">
 			<div class="col-lg-5">
 				<div class="brand-panel">
@@ -171,8 +190,34 @@
 					</div>
 					<div class="d-flex flex-wrap align-items-center justify-content-between mt-4">
 						<small class="text-muted">By signing in, you agree to the facility access policy.</small>
-						<a href="#" class="text-decoration-none">Privacy & terms</a>
+						<a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy & terms</a>
 					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="privacyModal" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-lg modal-dialog-scrollable">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Privacy & Terms</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+					<p>This system stores patient and staff activity data for clinical care and auditability.</p>
+					<ul>
+						<li>Access is restricted to authorized personnel only.</li>
+						<li>All logins and actions are logged for compliance.</li>
+						<li>Do not share credentials or OTPs.</li>
+						<li>Patients may request corrections to their records.</li>
+						<li>Data is used for clinical care, reporting, and service improvement.</li>
+					</ul>
+					<p class="mb-0">By continuing, you acknowledge these terms and agree to comply with facility policies.</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Acknowledge</button>
 				</div>
 			</div>
 		</div>

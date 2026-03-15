@@ -30,6 +30,9 @@
 		padding: 2rem;
 		box-shadow: 0 18px 40px rgba(15, 61, 62, 0.2);
 	}
+	.hero h1 {
+		font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.4rem);
+	}
 	.card-action {
 		border: none;
 		border-radius: 18px;
@@ -56,6 +59,16 @@
 		border-radius: 16px;
 		padding: 1rem;
 	}
+	@media (max-width: 992px) {
+		.hero {
+			padding: 1.5rem;
+		}
+	}
+	@media (max-width: 768px) {
+		.hero {
+			padding: 1.25rem;
+		}
+	}
 	.btn-primary {
 		background: var(--brand);
 		border-color: var(--brand);
@@ -81,7 +94,8 @@
 			<span class="fw-semibold">Umlilo HealthTech</span>
 			<div class="d-flex align-items-center gap-3">
 				<span class="text-muted">Nurse Portal</span>
-				<button class="btn btn-sm btn-outline-secondary">Logout</button>
+				<a href="profile.jsp" class="btn btn-sm btn-outline-primary">My Profile</a>
+				<a href="login.jsp" class="btn btn-sm btn-outline-secondary">Logout</a>
 			</div>
 		</div>
 	</nav>
@@ -90,13 +104,11 @@
 		<div class="hero mb-4">
 			<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center">
 				<div>
-					<span class="badge-phase">Master Data - Phase 1</span>
 					<h1 class="display-6 fw-semibold mt-2 mb-1">Welcome back, Nurse Thandi</h1>
 					<p class="mb-0">Quick access to patient onboarding and appointment records.</p>
 				</div>
 				<div class="mt-3 mt-lg-0">
-					<button class="btn btn-light me-2">Switch Role</button>
-					<a href="appointment.jsp" class="btn btn-outline-light">Open Appointment</a>
+					<a href="current-appointment.jsp" class="btn btn-outline-light">Open Appointment</a>
 				</div>
 			</div>
 		</div>
@@ -146,30 +158,7 @@
 					<div class="card-body p-4">
 						<h3 class="h5 fw-semibold">Current Appointment</h3>
 						<p class="text-muted">Review nurse notes, prescriptions, and doctor sign-off.</p>
-						<a href="appointment.jsp" class="btn btn-primary">Open Appointment</a>
-					</div>
-				</div>
-			</div>
-			<div class="col-md-6 col-lg-6">
-				<div class="card card-action h-100">
-					<div class="card-body p-4">
-						<h3 class="h5 fw-semibold">Nurse Checklist</h3>
-						<ul class="text-muted ps-3 mb-4">
-							<li>Validate OTP and login permissions.</li>
-							<li>Collect consent for digital records.</li>
-							<li>Capture personal info and illness history.</li>
-							<li>Save appointment notes and prescription.</li>
-						</ul>
-						<button class="btn btn-outline-primary">View Policy</button>
-					</div>
-				</div>
-			</div>
-			<div class="col-md-6 col-lg-6">
-				<div class="card card-action h-100">
-					<div class="card-body p-4">
-						<h3 class="h5 fw-semibold">Doctor Overview</h3>
-						<p class="text-muted">Doctors can see nurse notes, patient profile, and prior prescriptions before signing off.</p>
-						<a href="doctor.jsp" class="btn btn-outline-primary">Doctor Portal</a>
+						<a href="current-appointment.jsp" class="btn btn-primary">Open Appointment</a>
 					</div>
 				</div>
 			</div>
