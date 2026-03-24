@@ -147,7 +147,7 @@
 			<div class="col-md-6 col-lg-4">
 				<div class="card card-action h-100">
 					<div class="card-body p-4">
-						<h3 class="h5 fw-semibold">Lookup Patient by ID</h3>
+						<h3 class="h5 fw-semibold">Search Patient</h3>
 						<p class="text-muted">Find an existing patient and add appointment notes.</p>
 						<a href="appointment.jsp" class="btn btn-primary">Search Patient</a>
 					</div>

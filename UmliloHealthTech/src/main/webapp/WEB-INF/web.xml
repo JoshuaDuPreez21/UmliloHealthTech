@@ -5,10 +5,18 @@
     <welcome-file>login.jsp</welcome-file>
   </welcome-file-list>
   
+  <session-config>
+    <session-timeout>30</session-timeout>
+  </session-config>
+  
   
   <servlet>
     <servlet-name>Jersey Web Application</servlet-name>
     <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+    <init-param>
+      <param-name>com.sun.jersey.config.property.packages</param-name>
+      <param-value>Services</param-value>
+    </init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>
   <servlet-mapping>

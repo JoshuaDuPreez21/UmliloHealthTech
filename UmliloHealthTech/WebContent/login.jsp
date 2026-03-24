@@ -76,6 +76,50 @@
 		border-color: var(--brand);
 		color: #fff;
 	}
+	.loading-overlay {
+		position: fixed;
+		inset: 0;
+		background: rgba(15, 23, 42, 0.55);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		opacity: 0;
+		visibility: hidden;
+		transition: opacity 0.2s ease, visibility 0.2s ease;
+		z-index: 2000;
+	}
+	.loading-overlay.show {
+		opacity: 1;
+		visibility: visible;
+	}
+	.loading-card {
+		background: rgba(255, 255, 255, 0.14);
+		border: 1px solid rgba(255, 255, 255, 0.25);
+		backdrop-filter: blur(8px);
+		border-radius: 18px;
+		padding: 1.5rem;
+		width: min(70vw, 260px);
+		text-align: center;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		color: #fff;
+		box-shadow: 0 18px 35px rgba(15, 23, 42, 0.28);
+	}
+	.loading-logo {
+		width: 230px;
+		max-width: 100%;
+		height: auto;
+		margin: 0 auto 0.75rem;
+		filter: drop-shadow(0 6px 12px rgba(15, 23, 42, 0.35));
+	}
+	.loading-text {
+		margin-top: 0.6rem;
+		font-weight: 700;
+		font-size: 1.2rem;
+		letter-spacing: 0.04em;
+	}
 	.brand-logo {
 		width: min(70vw, 380px);
 		height: auto;
@@ -135,59 +179,60 @@
 
 					<div class="tab-content">
 						<div class="tab-pane fade show active" id="nurse-login" role="tabpanel">
-							<form>
+							<form class="login-form" data-role="nurse">
 								<div class="row g-3">
 									<div class="col-md-6">
 										<label class="form-label">Nurse ID</label>
-										<input type="text" class="form-control" placeholder="e.g. NUR-1024">
+										<input type="text" class="form-control" name="staffId" placeholder="e.g. NUR-1024">
 									</div>
 									<div class="col-md-6">
 										<label class="form-label">Password</label>
-										<input type="password" class="form-control" placeholder="********">
+										<input type="password" class="form-control" name="password" placeholder="********">
 									</div>
 									<div class="col-12">
 										<label class="form-label">OTP (SMS)</label>
 										<div class="input-group">
-											<input type="text" class="form-control" placeholder="6-digit OTP">
+											<input type="text" class="form-control" name="otp" placeholder="6-digit OTP">
 											<button class="btn btn-outline-secondary" type="button">Send OTP</button>
 										</div>
 										<div class="form-text">OTP is sent to your registered cellphone.</div>
 									</div>
 								</div>
 								<div class="d-flex flex-wrap gap-2 mt-4">
-									<button type="button" class="btn btn-primary px-4" id="nurseLoginBtn">Sign in</button>
+									<button type="submit" class="btn btn-primary px-4">Sign in</button>
 									<button type="button" class="btn btn-outline-primary">Forgot password</button>
 								</div>
 							</form>
 						</div>
 
 						<div class="tab-pane fade" id="doctor-login" role="tabpanel">
-							<form>
+							<form class="login-form" data-role="doctor">
 								<div class="row g-3">
 									<div class="col-md-6">
 										<label class="form-label">Doctor ID</label>
-										<input type="text" class="form-control" placeholder="e.g. DR-2048">
+										<input type="text" class="form-control" name="staffId" placeholder="e.g. DR-2048">
 									</div>
 									<div class="col-md-6">
 										<label class="form-label">Password</label>
-										<input type="password" class="form-control" placeholder="********">
+										<input type="password" class="form-control" name="password" placeholder="********">
 									</div>
 									<div class="col-12">
 										<label class="form-label">OTP (SMS)</label>
 										<div class="input-group">
-											<input type="text" class="form-control" placeholder="6-digit OTP">
+											<input type="text" class="form-control" name="otp" placeholder="6-digit OTP">
 											<button class="btn btn-outline-secondary" type="button">Send OTP</button>
 										</div>
 										<div class="form-text">OTP is required for sign-in.</div>
 									</div>
 								</div>
 								<div class="d-flex flex-wrap gap-2 mt-4">
-									<button type="button" class="btn btn-primary px-4" id="doctorLoginBtn">Sign in</button>
+									<button type="submit" class="btn btn-primary px-4">Sign in</button>
 									<button type="button" class="btn btn-outline-primary">Forgot password</button>
 								</div>
 							</form>
 						</div>
 					</div>
+					<div id="loginAlert" class="alert alert-info mt-4 d-none"></div>
 					<div class="d-flex flex-wrap align-items-center justify-content-between mt-4">
 						<small class="text-muted">By signing in, you agree to the facility access policy.</small>
 						<a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy & terms</a>
@@ -223,13 +268,89 @@
 		</div>
 	</div>
 
+	<div class="loading-overlay" id="loadingOverlay">
+		<div class="loading-card">
+			<img src="img/uht_bg.png" alt="Umlilo HealthTech logo" class="loading-logo">
+			<div class="spinner-border text-light" role="status"></div>
+			<div class="loading-text">Loading...</div>
+		</div>
+	</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-	document.getElementById("nurseLoginBtn").addEventListener("click", function () {
-		window.location.href = "home.jsp";
-	});
-	document.getElementById("doctorLoginBtn").addEventListener("click", function () {
-		window.location.href = "doctor.jsp";
+	var loadingCount = 0;
+	var loadingStart = 0;
+	var loadingMinMs = 500;
+	function showLoading() {
+		loadingCount += 1;
+		if (loadingCount === 1) {
+			loadingStart = Date.now();
+		}
+		document.getElementById("loadingOverlay").classList.add("show");
+	}
+	function hideLoading() {
+		loadingCount = Math.max(0, loadingCount - 1);
+		if (loadingCount === 0) {
+			var elapsed = Date.now() - loadingStart;
+			var remaining = Math.max(0, loadingMinMs - elapsed);
+			setTimeout(function () {
+				if (loadingCount === 0) {
+					document.getElementById("loadingOverlay").classList.remove("show");
+				}
+			}, remaining);
+		}
+	}
+
+	function showAlert(message, type) {
+		var alertEl = document.getElementById("loginAlert");
+		alertEl.className = "alert alert-" + type + " mt-4";
+		alertEl.textContent = message;
+		alertEl.classList.remove("d-none");
+	}
+
+	document.querySelectorAll(".login-form").forEach(function (form) {
+		form.addEventListener("submit", function (event) {
+			event.preventDefault();
+			var role = form.getAttribute("data-role");
+			var payload = {
+				staffId: form.querySelector("[name='staffId']").value.trim(),
+				password: form.querySelector("[name='password']").value.trim(),
+				otp: form.querySelector("[name='otp']").value.trim(),
+				role: role
+			};
+
+			showLoading();
+			fetch("rest/auth/login", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(payload)
+			})
+			.then(function (response) { return response.json().then(function (data) { return { status: response.status, data: data }; }); })
+			.then(function (result) {
+				if (result.status === 200 && result.data.success) {
+					var serverRole = result.data.role ? result.data.role.toLowerCase() : "";
+					if (role !== serverRole) {
+						showAlert("Role mismatch. Please use the " + (serverRole || "correct") + " login tab.", "warning");
+						return;
+					}
+					showAlert("Login successful. Redirecting...", "success");
+					if (serverRole === "doctor") {
+						window.location.href = "doctor.jsp";
+					} else {
+						window.location.href = "home.jsp";
+					}
+				} else {
+					var message = result.data && result.data.message ? result.data.message : "Login failed.";
+					showAlert(message, "warning");
+				}
+			})
+			.catch(function () {
+				showAlert("Unable to reach server. Please try again.", "danger");
+			})
+			.finally(function () {
+				hideLoading();
+			});
+		});
 	});
 </script>
 </body>
