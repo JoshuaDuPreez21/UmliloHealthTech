@@ -74,8 +74,8 @@
 			<span class="fw-semibold">Umlilo HealthTech</span>
 			<div class="d-flex align-items-center gap-3">
 				<span class="text-muted">Doctor Portal</span>
-				<a href="profile.jsp" class="btn btn-sm btn-outline-primary">My Profile</a>
-				<a href="login.jsp" class="btn btn-sm btn-outline-secondary">Logout</a>
+				<a href="profile" class="btn btn-sm btn-outline-primary">My Profile</a>
+				<a href="logout" class="btn btn-sm btn-outline-secondary">Logout</a>
 			</div>
 		</div>
 	</nav>
@@ -89,8 +89,8 @@
 					<p class="mb-0">Review nurse notes, patient history, and sign off appointments.</p>
 				</div>
 				<div class="mt-3 mt-lg-0">
-					<a href="appointment.jsp" class="btn btn-light me-2">Open Current Appointment</a>
-					<button class="btn btn-outline-light">View Queue</button>
+					<a href="#appointmentQueue" class="btn btn-light me-2">Open Current Appointment</a>
+					<a href="#appointmentQueue" class="btn btn-outline-light">View Queue</a>
 				</div>
 			</div>
 		</div>
@@ -101,9 +101,9 @@
 					<div class="card-body p-4">
 						<h3 class="h5 fw-semibold">Today Summary</h3>
 						<ul class="list-unstyled mb-0">
-							<li class="mb-2"><strong>Appointments:</strong> 9</li>
-							<li class="mb-2"><strong>Pending Sign-offs:</strong> 4</li>
-							<li class="mb-2"><strong>Priority Reviews:</strong> 2</li>
+							<li class="mb-2"><strong>Pending Sign-offs:</strong> <span id="pendingCount">0</span></li>
+							<li class="mb-2"><strong>Current Queue:</strong> <span id="queueCount">0</span></li>
+							<li class="mb-2"><strong>Status:</strong> <span id="queueStatus">Loading</span></li>
 						</ul>
 					</div>
 				</div>
@@ -116,26 +116,26 @@
 							<div class="col-md-6">
 								<div class="border rounded-3 p-3">
 									<div class="text-muted">Patient</div>
-									<div class="fw-semibold">Lerato Mokoena</div>
-									<div class="text-muted">ID: 900101 1234 567</div>
+									<div class="fw-semibold" id="snapshotPatient">No current patient</div>
+									<div class="text-muted" id="snapshotPatientId">ID: -</div>
 								</div>
 							</div>
 							<div class="col-md-6">
 								<div class="border rounded-3 p-3">
 									<div class="text-muted">Nurse Notes</div>
-									<div class="fw-semibold">Vitals stable, flu-like symptoms.</div>
-									<div class="text-muted">Prescription draft ready.</div>
+									<div class="fw-semibold" id="snapshotNurseNotes">No notes loaded.</div>
+									<div class="text-muted" id="snapshotNurse">Nurse: -</div>
 								</div>
 							</div>
 						</div>
 						<div class="d-flex flex-wrap gap-2 mt-3">
-							<a href="appointment.jsp" class="btn btn-primary">Review & Sign Off</a>
-							<button class="btn btn-outline-secondary">View History</button>
+							<a href="#appointmentQueue" class="btn btn-primary" id="snapshotOpenBtn">Review & Sign Off</a>
+							<a href="#appointmentQueue" class="btn btn-outline-secondary">View Queue</a>
 						</div>
 					</div>
 				</div>
 
-				<div class="card panel">
+				<div class="card panel" id="appointmentQueue">
 					<div class="card-body p-4">
 						<h3 class="h5 fw-semibold">Appointment Queue</h3>
 						<div class="table-responsive">
@@ -148,26 +148,7 @@
 										<th></th>
 									</tr>
 								</thead>
-								<tbody>
-									<tr>
-										<td>Lerato Mokoena</td>
-										<td><span class="badge bg-warning text-dark">Awaiting Sign-off</span></td>
-										<td>Flu symptoms</td>
-										<td><a href="appointment.jsp" class="btn btn-sm btn-outline-primary">Open</a></td>
-									</tr>
-									<tr>
-										<td>Samuel Ndlovu</td>
-										<td><span class="badge bg-success">Reviewed</span></td>
-										<td>Blood pressure check</td>
-										<td><button class="btn btn-sm btn-outline-secondary">View</button></td>
-									</tr>
-									<tr>
-										<td>Nandi Khumalo</td>
-										<td><span class="badge bg-info text-dark">In Review</span></td>
-										<td>Asthma follow-up</td>
-										<td><button class="btn btn-sm btn-outline-secondary">Open</button></td>
-									</tr>
-								</tbody>
+								<tbody id="doctorQueueBody"></tbody>
 							</table>
 						</div>
 					</div>
@@ -177,5 +158,64 @@
 	</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/session-timeout.js"></script>
+<script>
+	function shortText(value, maxLength) {
+		if (!value) return "-";
+		return value.length > maxLength ? value.substring(0, maxLength - 3) + "..." : value;
+	}
+
+	function renderQueue(rows) {
+		var body = document.getElementById("doctorQueueBody");
+		body.innerHTML = "";
+		document.getElementById("pendingCount").textContent = rows.length;
+		document.getElementById("queueCount").textContent = rows.length;
+		document.getElementById("queueStatus").textContent = rows.length ? "Ready for review" : "No pending sign-offs";
+
+		if (!rows.length) {
+			body.innerHTML = "<tr><td colspan=\"4\" class=\"text-muted\">No appointments waiting for doctor sign-off.</td></tr>";
+			document.getElementById("snapshotPatient").textContent = "No current patient";
+			document.getElementById("snapshotPatientId").textContent = "ID: -";
+			document.getElementById("snapshotNurseNotes").textContent = "No notes loaded.";
+			document.getElementById("snapshotNurse").textContent = "Nurse: -";
+			document.getElementById("snapshotOpenBtn").href = "#appointmentQueue";
+			return;
+		}
+
+		var first = rows[0];
+		document.getElementById("snapshotPatient").textContent = first.patientName || "-";
+		document.getElementById("snapshotPatientId").textContent = "ID: " + (first.patientIdNumber || "-");
+		document.getElementById("snapshotNurseNotes").textContent = shortText(first.nurseNotes, 80);
+		document.getElementById("snapshotNurse").textContent = "Nurse: " + (first.nurseName || "-");
+		document.getElementById("snapshotOpenBtn").href = "doctor-appointment?appointmentId=" + first.id;
+
+		rows.forEach(function (item) {
+			var tr = document.createElement("tr");
+			tr.innerHTML =
+				"<td>" + (item.patientName || "-") + "<div class=\"small text-muted\">" + (item.patientIdNumber || "-") + "</div></td>" +
+				"<td><span class=\"badge bg-warning text-dark\">Awaiting Sign-off</span></td>" +
+				"<td>" + shortText(item.nurseNotes, 70) + "</td>" +
+				"<td><a href=\"doctor-appointment?appointmentId=" + item.id + "\" class=\"btn btn-sm btn-outline-primary\">Open</a></td>";
+			body.appendChild(tr);
+		});
+	}
+
+	fetch("rest/appointments/doctor-queue")
+		.then(function (response) {
+			return response.json().then(function (data) { return { status: response.status, data: data }; });
+		})
+		.then(function (result) {
+			if (result.status === 200 && result.data.success) {
+				renderQueue(result.data.appointments || []);
+			} else {
+				renderQueue([]);
+				document.getElementById("queueStatus").textContent = "Unable to load queue";
+			}
+		})
+		.catch(function () {
+			renderQueue([]);
+			document.getElementById("queueStatus").textContent = "Unable to reach server";
+		});
+</script>
 </body>
 </html>

@@ -107,7 +107,7 @@
 		<div class="container py-2">
 			<span class="fw-semibold">Umlilo HealthTech</span>
 			<div class="d-flex align-items-center gap-3">
-				<a href="home.jsp" class="btn btn-sm btn-outline-secondary">Back to Dashboard</a>
+				<a href="home" class="btn btn-sm btn-outline-secondary">Back to Dashboard</a>
 			</div>
 		</div>
 	</nav>
@@ -207,6 +207,7 @@
 	<div class="position-fixed top-0 end-0 p-3" id="toastContainer" style="z-index: 1080;"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/session-timeout.js"></script>
 <script>
 	var loadingCount = 0;
 	var loadingStart = 0;
@@ -366,7 +367,7 @@
 			"<div class=\"fw-semibold\">" + openAppointment.date + "</div>" +
 			"<div class=\"text-muted\">Status: " + openAppointment.status + "</div>" +
 			"</div>" +
-			"<a href=\"current-appointment.jsp\" class=\"btn btn-outline-primary\">Open</a>" +
+			"<a href=\"capture-appointment?appointmentId=" + openAppointment.id + "\" class=\"btn btn-outline-primary\">Open</a>" +
 			"</div>";
 		container.appendChild(wrapper);
 	}

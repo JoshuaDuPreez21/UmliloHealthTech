@@ -189,14 +189,6 @@
 										<label class="form-label">Password</label>
 										<input type="password" class="form-control" name="password" placeholder="********">
 									</div>
-									<div class="col-12">
-										<label class="form-label">OTP (SMS)</label>
-										<div class="input-group">
-											<input type="text" class="form-control" name="otp" placeholder="6-digit OTP">
-											<button class="btn btn-outline-secondary" type="button">Send OTP</button>
-										</div>
-										<div class="form-text">OTP is sent to your registered cellphone.</div>
-									</div>
 								</div>
 								<div class="d-flex flex-wrap gap-2 mt-4">
 									<button type="submit" class="btn btn-primary px-4">Sign in</button>
@@ -215,14 +207,6 @@
 									<div class="col-md-6">
 										<label class="form-label">Password</label>
 										<input type="password" class="form-control" name="password" placeholder="********">
-									</div>
-									<div class="col-12">
-										<label class="form-label">OTP (SMS)</label>
-										<div class="input-group">
-											<input type="text" class="form-control" name="otp" placeholder="6-digit OTP">
-											<button class="btn btn-outline-secondary" type="button">Send OTP</button>
-										</div>
-										<div class="form-text">OTP is required for sign-in.</div>
 									</div>
 								</div>
 								<div class="d-flex flex-wrap gap-2 mt-4">
@@ -254,7 +238,7 @@
 					<ul>
 						<li>Access is restricted to authorized personnel only.</li>
 						<li>All logins and actions are logged for compliance.</li>
-						<li>Do not share credentials or OTPs.</li>
+						<li>Do not share credentials.</li>
 						<li>Patients may request corrections to their records.</li>
 						<li>Data is used for clinical care, reporting, and service improvement.</li>
 					</ul>
@@ -315,7 +299,6 @@
 			var payload = {
 				staffId: form.querySelector("[name='staffId']").value.trim(),
 				password: form.querySelector("[name='password']").value.trim(),
-				otp: form.querySelector("[name='otp']").value.trim(),
 				role: role
 			};
 
@@ -335,9 +318,9 @@
 					}
 					showAlert("Login successful. Redirecting...", "success");
 					if (serverRole === "doctor") {
-						window.location.href = "doctor.jsp";
+						window.location.href = "doctor";
 					} else {
-						window.location.href = "home.jsp";
+						window.location.href = "home";
 					}
 				} else {
 					var message = result.data && result.data.message ? result.data.message : "Login failed.";

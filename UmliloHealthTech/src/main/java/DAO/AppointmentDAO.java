@@ -98,6 +98,95 @@ public class AppointmentDAO {
 		}
 	}
 
+	public boolean updateNurseNotes(Long appointmentId, String nurseNotes) throws SQLException {
+		String sql = "UPDATE appointments SET nurse_notes = ?, visit_summary = ?, status = ? WHERE id = ?";
+		try (Connection conn = DBUtil.getConnection();
+				PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, nurseNotes);
+			ps.setString(2, nurseNotes);
+			ps.setString(3, "PENDING_DOCTOR");
+			ps.setLong(4, appointmentId);
+			return ps.executeUpdate() > 0;
+		}
+	}
+
+	public boolean signOffAppointment(Long appointmentId, String doctorName, String prescription,
+			String doctorSummary) throws SQLException {
+		String sql = "UPDATE appointments SET doctor_name = ?, prescription = ?, doctor_summary = ?, " +
+				"visit_summary = ?, status = ? WHERE id = ?";
+		try (Connection conn = DBUtil.getConnection();
+				PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, doctorName);
+			ps.setString(2, prescription);
+			ps.setString(3, doctorSummary);
+			ps.setString(4, doctorSummary);
+			ps.setString(5, "COMPLETED");
+			ps.setLong(6, appointmentId);
+			return ps.executeUpdate() > 0;
+		}
+	}
+
+	public List<Appointment> findAppointmentsForDoctorQueue() throws SQLException {
+		List<Appointment> results = new ArrayList<>();
+		String sql = "SELECT a.id, a.patient_id, a.appointment_time, a.status, a.nurse_name, a.doctor_name, a.visit_summary, " +
+				"a.nurse_notes, p.first_name, p.surname, p.id_number " +
+				"FROM appointments a " +
+				"JOIN patients p ON p.id = a.patient_id " +
+				"WHERE a.status = 'PENDING_DOCTOR' " +
+				"ORDER BY a.appointment_time ASC";
+		try (Connection conn = DBUtil.getConnection();
+				PreparedStatement ps = conn.prepareStatement(sql);
+				ResultSet rs = ps.executeQuery()) {
+			while (rs.next()) {
+				Appointment appointment = new Appointment();
+				appointment.setId(rs.getLong("id"));
+				appointment.setPatientId(rs.getLong("patient_id"));
+				appointment.setAppointmentTime(rs.getTimestamp("appointment_time"));
+				appointment.setStatus(rs.getString("status"));
+				appointment.setNurseName(rs.getString("nurse_name"));
+				appointment.setDoctorName(rs.getString("doctor_name"));
+				appointment.setVisitSummary(rs.getString("visit_summary"));
+				appointment.setNurseNotes(rs.getString("nurse_notes"));
+				appointment.setPatientName(rs.getString("first_name") + " " + rs.getString("surname"));
+				appointment.setPatientIdNumber(rs.getString("id_number"));
+				results.add(appointment);
+			}
+		}
+		return results;
+	}
+
+	public List<Appointment> findPreviousPrescriptions(Long patientId, Long excludedAppointmentId) throws SQLException {
+		List<Appointment> results = new ArrayList<>();
+		String sql = "SELECT id, patient_id, appointment_time, status, nurse_name, doctor_name, visit_summary, " +
+				"nurse_notes, prescription, doctor_summary, additional_notes " +
+				"FROM appointments " +
+				"WHERE patient_id = ? AND id <> ? AND prescription IS NOT NULL AND TRIM(prescription) <> '' " +
+				"ORDER BY appointment_time DESC";
+		try (Connection conn = DBUtil.getConnection();
+				PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setLong(1, patientId);
+			ps.setLong(2, excludedAppointmentId);
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					Appointment appointment = new Appointment();
+					appointment.setId(rs.getLong("id"));
+					appointment.setPatientId(rs.getLong("patient_id"));
+					appointment.setAppointmentTime(rs.getTimestamp("appointment_time"));
+					appointment.setStatus(rs.getString("status"));
+					appointment.setNurseName(rs.getString("nurse_name"));
+					appointment.setDoctorName(rs.getString("doctor_name"));
+					appointment.setVisitSummary(rs.getString("visit_summary"));
+					appointment.setNurseNotes(rs.getString("nurse_notes"));
+					appointment.setPrescription(rs.getString("prescription"));
+					appointment.setDoctorSummary(rs.getString("doctor_summary"));
+					appointment.setAdditionalNotes(rs.getString("additional_notes"));
+					results.add(appointment);
+				}
+			}
+		}
+		return results;
+	}
+
 	public List<Appointment> findAppointmentsForNurseOnDate(String nurseName, Date date) throws SQLException {
 		List<Appointment> results = new ArrayList<>();
 		String sql = "SELECT a.id, a.patient_id, a.appointment_time, a.status, a.nurse_name, a.doctor_name, a.visit_summary, " +
@@ -129,6 +218,18 @@ public class AppointmentDAO {
 		return results;
 	}
 
+	public int countAppointmentsForNurseOnDate(String nurseName, Date date) throws SQLException {
+		String sql = "SELECT COUNT(*) AS total FROM appointments WHERE nurse_name = ? AND DATE(appointment_time) = ?";
+		try (Connection conn = DBUtil.getConnection();
+				PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, nurseName);
+			ps.setDate(2, date);
+			try (ResultSet rs = ps.executeQuery()) {
+				return rs.next() ? rs.getInt("total") : 0;
+			}
+		}
+	}
+
 	public List<Appointment> findAppointmentsByPatient(Long patientId, String filter) throws SQLException {
 		List<Appointment> results = new ArrayList<>();
 		StringBuilder sql = new StringBuilder(
@@ -137,7 +238,7 @@ public class AppointmentDAO {
 		);
 
 		if ("open".equalsIgnoreCase(filter)) {
-			sql.append("AND status IN ('OPEN','IN_PROGRESS') ");
+			sql.append("AND status IN ('NEW','PENDING','WAITING','IN_PROGRESS','PENDING_DOCTOR') ");
 		} else if ("completed".equalsIgnoreCase(filter)) {
 			sql.append("AND status = 'COMPLETED' ");
 		}
@@ -166,7 +267,7 @@ public class AppointmentDAO {
 
 	public Appointment findOpenAppointmentByPatient(Long patientId) throws SQLException {
 		String sql = "SELECT id, patient_id, appointment_time, status, nurse_name, doctor_name, visit_summary " +
-				"FROM appointments WHERE patient_id = ? AND status IN ('OPEN','IN_PROGRESS') " +
+				"FROM appointments WHERE patient_id = ? AND status IN ('NEW','PENDING','WAITING','IN_PROGRESS','PENDING_DOCTOR') " +
 				"ORDER BY appointment_time DESC LIMIT 1";
 		try (Connection conn = DBUtil.getConnection();
 				PreparedStatement ps = conn.prepareStatement(sql)) {

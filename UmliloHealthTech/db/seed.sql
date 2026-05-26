@@ -3,9 +3,6 @@ VALUES
 ('NUR-1024', 'Thandi Mthembu', 'nurse', 'oAYC1dR81YRVWeUc0e9D0g==:KI8f7GaU+OVJXinsvDI0AQ+gjxTbbvH1c4r6FC7zE7U=', 1),
 ('DR-2048', 'Dr. Naidoo', 'doctor', 'oAYC1dR81YRVWeUc0e9D0g==:KI8f7GaU+OVJXinsvDI0AQ+gjxTbbvH1c4r6FC7zE7U=', 1);
 
-INSERT INTO otp_bypass (staff_id, active)
-VALUES ('NUR-1024', 1);
-
 INSERT INTO patients (first_name, surname, id_number, cell, gender, address, email, employment_status, job_title,
 next_of_kin_name, next_of_kin_relation, emergency_contact, is_south_african, nationality, foreign_id, illnesses, illness_notes, consent)
 VALUES

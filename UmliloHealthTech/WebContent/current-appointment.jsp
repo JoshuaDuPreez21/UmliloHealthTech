@@ -105,7 +105,7 @@
 		<div class="container py-2">
 			<span class="fw-semibold">Umlilo HealthTech</span>
 			<div class="d-flex align-items-center gap-3">
-				<a href="home.jsp" class="btn btn-sm btn-outline-secondary">Back to Dashboard</a>
+				<a href="home" class="btn btn-sm btn-outline-secondary">Back to Dashboard</a>
 			</div>
 		</div>
 	</nav>
@@ -194,6 +194,7 @@
 	</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/session-timeout.js"></script>
 <script>
 	var loadingCount = 0;
 	var loadingStart = 0;
@@ -322,12 +323,13 @@
 			}
 
 			var actionCell = "";
-			if (status !== "COMPLETED" && status !== "PENDING_DOCTOR") {
+			if (status !== "COMPLETED") {
+				var updateStatusButton = statusSelect ? "<button class=\"btn btn-sm btn-outline-secondary\" data-update-status>Update</button>" : "";
 				actionCell =
 					"<div class=\"d-flex gap-2 justify-content-end align-items-center\">" +
-					"<a href=\"capture-appointment.jsp?appointmentId=" + item.id + "\" class=\"btn btn-sm btn-outline-primary\">Capture</a>" +
+					"<a href=\"capture-appointment?appointmentId=" + item.id + "\" class=\"btn btn-sm btn-outline-primary\">Open</a>" +
 					statusSelect +
-					"<button class=\"btn btn-sm btn-outline-secondary\" data-update-status>Update</button>" +
+					updateStatusButton +
 					"</div>";
 			}
 

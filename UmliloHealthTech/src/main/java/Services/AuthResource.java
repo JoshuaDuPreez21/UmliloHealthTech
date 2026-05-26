@@ -14,7 +14,6 @@ import javax.ws.rs.core.Response;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import DAO.OtpDAO;
 import DAO.UserDAO;
 import Models.User;
 import Utils.PasswordUtil;
@@ -61,29 +60,10 @@ public class AuthResource {
 				return Response.status(403).entity(toReturn.toString()).build();
 			}
 
-			OtpDAO otpDAO = new OtpDAO();
-			boolean bypassOtp = otpDAO.isOtpBypass(staffId);
-			if (!bypassOtp) {
-				String otp = jsonObject.has("otp") ? jsonObject.getString("otp").trim() : "";
-				if (otp.isEmpty()) {
-					toReturn.put("error", true);
-					toReturn.put("message", "OTP is required.");
-					toReturn.put("otpRequired", true);
-					return Response.status(400).entity(toReturn.toString()).build();
-				}
-				boolean otpValid = otpDAO.verifyOtp(staffId, otp);
-				if (!otpValid) {
-					toReturn.put("error", true);
-					toReturn.put("message", "Invalid OTP.");
-					return Response.status(401).entity(toReturn.toString()).build();
-				}
-			}
-
 			helper.establishSession(request, user.getId(), user.getRole(), user.getFullName());
 			toReturn.put("success", true);
 			toReturn.put("message", "Login successful.");
 			toReturn.put("role", user.getRole());
-			toReturn.put("otpRequired", false);
 
 		} catch (JSONException e) {
 			e.printStackTrace();

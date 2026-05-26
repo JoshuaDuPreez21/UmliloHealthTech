@@ -101,7 +101,7 @@
 		<div class="container py-2">
 			<span class="fw-semibold">Umlilo HealthTech</span>
 			<div class="d-flex align-items-center gap-3">
-				<a href="home.jsp" class="btn btn-sm btn-outline-secondary">Back to Dashboard</a>
+				<a href="home" class="btn btn-sm btn-outline-secondary">Back to Dashboard</a>
 			</div>
 		</div>
 	</nav>
@@ -344,6 +344,7 @@
 	</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/session-timeout.js"></script>
 <script>
 	var loadingCount = 0;
 	var loadingStart = 0;
@@ -650,7 +651,7 @@
 				clearValidation();
 				updateSummary();
 				setTimeout(function () {
-					window.location.href = "home.jsp";
+					window.location.href = "home";
 				}, 3000);
 			} else {
 				var message = result.data && result.data.message ? result.data.message : "Unable to save patient.";

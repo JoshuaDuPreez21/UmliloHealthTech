@@ -1,10 +1,13 @@
 package Services;
 
 import java.sql.SQLException;
+import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -28,6 +31,31 @@ import Utils.SessionHelper;
 @Path("/patients")
 public class PatientResource {
 	private final SessionHelper helper = new SessionHelper();
+
+	@Path("dashboard")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getNurseDashboard(@Context HttpServletRequest request) throws SQLException, JSONException {
+		JSONObject toReturn = new JSONObject();
+
+		boolean isValidSession = helper.validateSession(request);
+		if (!isValidSession) {
+			return Response.status(401).entity(toReturn.toString()).build();
+		}
+
+		HttpSession session = request.getSession(false);
+		String nurseName = session != null ? (String) session.getAttribute("fullName") : "";
+
+		PatientDAO patientDAO = new PatientDAO();
+		AppointmentDAO appointmentDAO = new AppointmentDAO();
+
+		toReturn.put("success", true);
+		toReturn.put("fullName", nurseName);
+		toReturn.put("patientsCapturedToday", patientDAO.countPatientsCapturedToday());
+		toReturn.put("totalPatients", patientDAO.countPatients());
+		toReturn.put("todaysAppointments", appointmentDAO.countAppointmentsForNurseOnDate(nurseName, Date.valueOf(LocalDate.now())));
+		return Response.status(200).entity(toReturn.toString()).build();
+	}
 
 	@Path("search-list")
 	@GET

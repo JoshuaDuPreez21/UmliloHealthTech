@@ -49,8 +49,8 @@
 		<div class="container py-2">
 			<span class="fw-semibold">Umlilo HealthTech</span>
 			<div class="d-flex align-items-center gap-3">
-				<a href="home.jsp" class="btn btn-sm btn-outline-secondary">Back to Dashboard</a>
-				<a href="login.jsp" class="btn btn-sm btn-outline-secondary">Logout</a>
+				<a href="home" class="btn btn-sm btn-outline-secondary">Back to Dashboard</a>
+				<a href="logout" class="btn btn-sm btn-outline-secondary">Logout</a>
 			</div>
 		</div>
 	</nav>
@@ -127,5 +127,6 @@
 	</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/session-timeout.js"></script>
 </body>
 </html>

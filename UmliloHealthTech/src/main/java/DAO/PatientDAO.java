@@ -49,6 +49,24 @@ public class PatientDAO {
 		}
 	}
 
+	public int countPatients() throws SQLException {
+		String sql = "SELECT COUNT(*) AS total FROM patients";
+		try (Connection conn = DBUtil.getConnection();
+				PreparedStatement ps = conn.prepareStatement(sql);
+				ResultSet rs = ps.executeQuery()) {
+			return rs.next() ? rs.getInt("total") : 0;
+		}
+	}
+
+	public int countPatientsCapturedToday() throws SQLException {
+		String sql = "SELECT COUNT(*) AS total FROM patients WHERE DATE(created_at) = CURDATE()";
+		try (Connection conn = DBUtil.getConnection();
+				PreparedStatement ps = conn.prepareStatement(sql);
+				ResultSet rs = ps.executeQuery()) {
+			return rs.next() ? rs.getInt("total") : 0;
+		}
+	}
+
 	public Patient findByIdNumber(String idNumber) throws SQLException {
 		String sql = "SELECT id, first_name, surname, id_number, cell, gender, address, email, employment_status, job_title, " +
 				"next_of_kin_name, next_of_kin_relation, emergency_contact, is_south_african, nationality, foreign_id, illnesses, illness_notes, consent " +
@@ -56,6 +74,42 @@ public class PatientDAO {
 		try (Connection conn = DBUtil.getConnection();
 				PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setString(1, idNumber);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					Patient patient = new Patient();
+					patient.setId(rs.getLong("id"));
+					patient.setFirstName(rs.getString("first_name"));
+					patient.setSurname(rs.getString("surname"));
+					patient.setIdNumber(rs.getString("id_number"));
+					patient.setCell(rs.getString("cell"));
+					patient.setGender(rs.getString("gender"));
+					patient.setAddress(rs.getString("address"));
+					patient.setEmail(rs.getString("email"));
+					patient.setEmploymentStatus(rs.getString("employment_status"));
+					patient.setJobTitle(rs.getString("job_title"));
+					patient.setNextOfKinName(rs.getString("next_of_kin_name"));
+					patient.setNextOfKinRelation(rs.getString("next_of_kin_relation"));
+					patient.setEmergencyContact(rs.getString("emergency_contact"));
+					patient.setSouthAfrican(rs.getBoolean("is_south_african"));
+					patient.setNationality(rs.getString("nationality"));
+					patient.setForeignId(rs.getString("foreign_id"));
+					patient.setIllnesses(rs.getString("illnesses"));
+					patient.setIllnessNotes(rs.getString("illness_notes"));
+					patient.setConsent(rs.getBoolean("consent"));
+					return patient;
+				}
+			}
+		}
+		return null;
+	}
+
+	public Patient findById(Long id) throws SQLException {
+		String sql = "SELECT id, first_name, surname, id_number, cell, gender, address, email, employment_status, job_title, " +
+				"next_of_kin_name, next_of_kin_relation, emergency_contact, is_south_african, nationality, foreign_id, illnesses, illness_notes, consent " +
+				"FROM patients WHERE id = ?";
+		try (Connection conn = DBUtil.getConnection();
+				PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setLong(1, id);
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) {
 					Patient patient = new Patient();

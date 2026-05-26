@@ -2,12 +2,111 @@
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
   <display-name>UHT</display-name>
   <welcome-file-list>
-    <welcome-file>login.jsp</welcome-file>
+    <welcome-file>login</welcome-file>
   </welcome-file-list>
   
   <session-config>
     <session-timeout>30</session-timeout>
   </session-config>
+
+  <filter>
+    <filter-name>PageAccessFilter</filter-name>
+    <filter-class>Filters.PageAccessFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>PageAccessFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <servlet>
+    <servlet-name>login-page</servlet-name>
+    <jsp-file>/login.jsp</jsp-file>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>login-page</servlet-name>
+    <url-pattern>/login</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>home-page</servlet-name>
+    <jsp-file>/home.jsp</jsp-file>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>home-page</servlet-name>
+    <url-pattern>/home</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>patient-page</servlet-name>
+    <jsp-file>/patient.jsp</jsp-file>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>patient-page</servlet-name>
+    <url-pattern>/patient</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>appointment-page</servlet-name>
+    <jsp-file>/appointment.jsp</jsp-file>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>appointment-page</servlet-name>
+    <url-pattern>/appointment</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>current-appointment-page</servlet-name>
+    <jsp-file>/current-appointment.jsp</jsp-file>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>current-appointment-page</servlet-name>
+    <url-pattern>/current-appointment</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>capture-appointment-page</servlet-name>
+    <jsp-file>/capture-appointment.jsp</jsp-file>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>capture-appointment-page</servlet-name>
+    <url-pattern>/capture-appointment</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>doctor-page</servlet-name>
+    <jsp-file>/doctor.jsp</jsp-file>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>doctor-page</servlet-name>
+    <url-pattern>/doctor</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>doctor-appointment-page</servlet-name>
+    <jsp-file>/doctor-appointment.jsp</jsp-file>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>doctor-appointment-page</servlet-name>
+    <url-pattern>/doctor-appointment</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>profile-page</servlet-name>
+    <jsp-file>/profile.jsp</jsp-file>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>profile-page</servlet-name>
+    <url-pattern>/profile</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>logout-servlet</servlet-name>
+    <servlet-class>Servlets.LogoutServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>logout-servlet</servlet-name>
+    <url-pattern>/logout</url-pattern>
+  </servlet-mapping>
   
   
   <servlet>

@@ -101,7 +101,7 @@
 		<div class="container py-2">
 			<span class="fw-semibold">Umlilo HealthTech</span>
 			<div class="d-flex align-items-center gap-3">
-				<a href="current-appointment.jsp" class="btn btn-sm btn-outline-secondary">Back to Appointments</a>
+				<a href="current-appointment" class="btn btn-sm btn-outline-secondary">Back to Appointments</a>
 			</div>
 		</div>
 	</nav>
@@ -110,7 +110,7 @@
 		<div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
 			<div>
 				<h1 class="page-title fw-bold mb-1">Capture Appointment</h1>
-				<p class="text-muted mb-0">Record visit details for the active patient.</p>
+				<p class="text-muted mb-0">Open the patient appointment and update nurse notes.</p>
 			</div>
 			<div class="badge bg-light text-dark border">Nurse: Thandi Mthembu</div>
 		</div>
@@ -134,27 +134,15 @@
 			<div class="col-lg-8">
 				<div class="card panel">
 					<div class="card-body p-4">
-						<h2 class="h5 section-label mb-3">Clinical Notes</h2>
+						<h2 class="h5 section-label mb-3">Nurse Notes</h2>
 						<div class="row g-3">
-							<div class="col-md-6">
+							<div class="col-12">
 								<label class="form-label">Nurse Notes</label>
-								<textarea class="form-control" rows="4" id="nurseNotes" placeholder="Record vitals, symptoms, observations"></textarea>
-							</div>
-							<div class="col-md-6">
-								<label class="form-label">Prescription</label>
-								<textarea class="form-control" rows="4" id="prescriptionNotes" placeholder="Medication details"></textarea>
-							</div>
-							<div class="col-12">
-								<label class="form-label">Doctor Visit Summary</label>
-								<textarea class="form-control" rows="3" id="doctorSummary" placeholder="What happened during the doctor appointment"></textarea>
-							</div>
-							<div class="col-12">
-								<label class="form-label">Additional Notes</label>
-								<textarea class="form-control" rows="2" id="additionalNotes" placeholder="Additional notes"></textarea>
+								<textarea class="form-control" rows="8" id="nurseNotes" placeholder="Record vitals, symptoms, observations, and intake notes"></textarea>
 							</div>
 						</div>
 						<div class="d-flex flex-wrap gap-2 mt-3">
-							<button class="btn btn-primary" id="saveAppointmentBtn" type="button">Save Appointment Notes</button>
+							<button class="btn btn-primary" id="saveAppointmentBtn" type="button">Update Appointment</button>
 							<button class="btn btn-outline-primary" id="attachFilesBtn" type="button">Attach Files</button>
 						</div>
 						<input type="file" id="attachmentInput" class="d-none">
@@ -175,6 +163,7 @@
 	</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/session-timeout.js"></script>
 <script>
 	var loadingCount = 0;
 	var loadingStart = 0;
@@ -207,7 +196,7 @@
 	}
 
 	function clearValidation() {
-		["nurseNotes", "prescriptionNotes", "doctorSummary", "additionalNotes"].forEach(function (id) {
+		["nurseNotes"].forEach(function (id) {
 			var el = document.getElementById(id);
 			if (el) el.classList.remove("is-invalid");
 		});
@@ -238,6 +227,7 @@
 					document.getElementById("patientCell").textContent = result.data.patient.cell || "-";
 					document.getElementById("appointmentTime").textContent = result.data.appointment.appointmentTime || "-";
 					document.getElementById("appointmentStatus").textContent = "Status: " + (result.data.appointment.status || "-");
+					document.getElementById("nurseNotes").value = result.data.appointment.nurseNotes || "";
 				} else {
 					var message = result.data && result.data.message ? result.data.message : "Unable to load appointment.";
 					showCaptureAlert(message, "warning");
@@ -341,31 +331,22 @@
 		var params = new URLSearchParams(window.location.search);
 		var appointmentId = params.get("appointmentId");
 		var nurseNotes = document.getElementById("nurseNotes").value.trim();
-		var prescription = document.getElementById("prescriptionNotes").value.trim();
-		var doctorSummary = document.getElementById("doctorSummary").value.trim();
-		var additionalNotes = document.getElementById("additionalNotes").value.trim();
 
 		var missing = false;
 		if (!nurseNotes) { markInvalid("nurseNotes"); missing = true; }
-		if (!prescription) { markInvalid("prescriptionNotes"); missing = true; }
-		if (!doctorSummary) { markInvalid("doctorSummary"); missing = true; }
-		if (!additionalNotes) { markInvalid("additionalNotes"); missing = true; }
 
 		if (missing) {
-			showCaptureAlert("All fields are required.", "warning");
+			showCaptureAlert("Nurse notes are required.", "warning");
 			return;
 		}
 
 		showLoading();
-		fetch("rest/appointments/capture", {
+		fetch("rest/appointments/nurse-notes", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
 				appointmentId: Number(appointmentId),
-				nurseNotes: nurseNotes,
-				prescription: prescription,
-				doctorSummary: doctorSummary,
-				additionalNotes: additionalNotes
+				nurseNotes: nurseNotes
 			})
 		})
 		.then(function (response) {
@@ -373,10 +354,10 @@
 		})
 		.then(function (result) {
 			if (result.status === 200 && result.data.success) {
-				showCaptureAlert("Appointment captured. Pending doctor sign-off.", "success");
+				showCaptureAlert("Appointment updated. Pending doctor sign-off.", "success");
 				document.getElementById("appointmentStatus").textContent = "Status: PENDING_DOCTOR";
 				setTimeout(function () {
-					window.location.href = "current-appointment.jsp";
+					window.location.href = "current-appointment";
 				}, 2500);
 			} else {
 				var message = result.data && result.data.message ? result.data.message : "Unable to capture appointment.";
