@@ -10,71 +10,130 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 	:root {
-		--ink: #0f172a;
-		--brand: #1b7a6d;
+		--ink: #102027;
+		--brand: #18786f;
+		--brand-dark: #0f4f4a;
 		--brand-soft: #e7f3f1;
+		--accent: #f4b400;
 		--surface: #ffffff;
-		--muted: #667085;
-		--border: #e5edf2;
+		--muted: #687782;
+		--border: #dfe9ed;
 	}
 	body {
-		background: var(--brand);
+		background:
+			linear-gradient(145deg, rgba(24, 120, 111, 0.92), rgba(16, 32, 39, 0.76)),
+			url("img/uht_bg.png");
+		background-position: center;
+		background-size: cover;
 		min-height: 100vh;
 		font-family: "Manrope", "Segoe UI", sans-serif;
 		color: var(--ink);
 	}
-	.brand-panel {
-		background: #ffffff;
-		color: var(--ink);
-		color: #fff;
-		border-radius: 26px;
-		padding: 2.5rem;
-		box-shadow: 0 18px 45px rgba(15, 61, 62, 0.08);
-		height: 100%;
-		position: relative;
-		overflow: hidden;
+	.login-shell {
+		min-height: 100vh;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-	}
-	.brand-panel::after {
-		content: "";
-		position: absolute;
-		inset: 0;
-		background: radial-gradient(circle at top left, rgba(27, 122, 109, 0.08), transparent 55%);
-		opacity: 1;
-		z-index: 0;
-	}
-	.brand-panel-content {
-		position: relative;
-		z-index: 1;
-		text-align: center;
+		padding: 1.5rem;
 	}
 	.auth-card {
-		border: none;
-		box-shadow: 0 20px 50px rgba(15, 61, 62, 0.12);
-		border-radius: 20px;
+		width: min(100%, 430px);
+		background: rgba(255, 255, 255, 0.96);
+		border: 1px solid rgba(255, 255, 255, 0.72);
+		border-radius: 18px;
+		box-shadow: 0 24px 70px rgba(7, 34, 35, 0.28);
+		padding: clamp(1.5rem, 1.1rem + 1.8vw, 2.35rem);
 	}
-	.form-control, .form-select {
+	.logo-wrap {
+		display: flex;
+		justify-content: center;
+		margin-bottom: 1.35rem;
+	}
+	.brand-logo {
+		width: min(70vw, 240px);
+		height: auto;
+		display: block;
+	}
+	.login-title {
+		font-size: 1.35rem;
+		font-weight: 800;
+		text-align: center;
+		margin-bottom: 0.35rem;
+	}
+	.login-subtitle {
+		color: var(--muted);
+		text-align: center;
+		margin-bottom: 1.35rem;
+		font-size: 0.95rem;
+	}
+	.role-toggle {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.35rem;
+		background: #edf5f4;
+		border: 1px solid var(--border);
+		border-radius: 14px;
+		padding: 0.35rem;
+		margin-bottom: 1.25rem;
+	}
+	.role-option {
+		position: relative;
+	}
+	.role-option input {
+		position: absolute;
+		opacity: 0;
+		pointer-events: none;
+	}
+	.role-option label {
+		width: 100%;
+		min-height: 42px;
+		border-radius: 10px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-weight: 800;
+		color: var(--muted);
+		cursor: pointer;
+		transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+	}
+	.role-option input:checked + label {
+		background: var(--surface);
+		color: var(--brand-dark);
+		box-shadow: 0 8px 18px rgba(12, 67, 64, 0.13);
+	}
+	.form-label {
+		font-weight: 800;
+		color: #1d3037;
+	}
+	.form-control {
 		border-radius: 12px;
 		border-color: var(--border);
+		min-height: 48px;
+	}
+	.form-control:focus {
+		border-color: var(--brand);
+		box-shadow: 0 0 0 0.22rem rgba(24, 120, 111, 0.16);
 	}
 	.btn-primary {
 		background: var(--brand);
 		border-color: var(--brand);
+		border-radius: 12px;
+		min-height: 48px;
+		font-weight: 800;
 	}
 	.btn-primary:hover {
-		background: #0b2f30;
-		border-color: #0b2f30;
+		background: var(--brand-dark);
+		border-color: var(--brand-dark);
 	}
-	.btn-outline-primary {
-		border-color: var(--brand);
-		color: var(--brand);
+	.meta-row {
+		display: flex;
+		justify-content: center;
+		margin-top: 1rem;
 	}
-	.btn-outline-primary:hover {
-		background: var(--brand);
-		border-color: var(--brand);
-		color: #fff;
+	.meta-row a {
+		color: var(--brand-dark);
+		font-weight: 700;
+		text-decoration: none;
 	}
 	.loading-overlay {
 		position: fixed;
@@ -108,7 +167,7 @@
 		box-shadow: 0 18px 35px rgba(15, 23, 42, 0.28);
 	}
 	.loading-logo {
-		width: 230px;
+		width: 210px;
 		max-width: 100%;
 		height: auto;
 		margin: 0 auto 0.75rem;
@@ -117,114 +176,57 @@
 	.loading-text {
 		margin-top: 0.6rem;
 		font-weight: 700;
-		font-size: 1.2rem;
-		letter-spacing: 0.04em;
+		font-size: 1.05rem;
 	}
-	.brand-logo {
-		width: min(70vw, 380px);
-		height: auto;
-	}
-	.login-title {
-		font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
-		font-weight: 700;
-	}
-	.login-subtitle {
-		font-size: clamp(0.95rem, 0.9rem + 0.4vw, 1.1rem);
-	}
-	.auth-card {
-		min-height: 520px;
-	}
-	@media (max-width: 992px) {
-		.auth-card {
-			min-height: auto;
-		}
-		.brand-panel {
-			padding: 2rem;
-		}
-	}
-	@media (max-width: 768px) {
-		.brand-panel {
-			padding: 1.75rem;
+	@media (max-width: 480px) {
+		.login-shell {
+			padding: 1rem;
 		}
 		.auth-card {
-			padding: 1.75rem;
+			border-radius: 16px;
 		}
 	}
 </style>
 </head>
 <body>
-	<div class="container min-vh-100 d-flex align-items-center py-4 py-lg-5">
-		<div class="row g-4 align-items-stretch">
-			<div class="col-lg-5">
-				<div class="brand-panel">
-					<div class="brand-panel-content">
-						<img src="img/uht_bg.png" alt="Umlilo HealthTech logo" class="brand-logo mb-3">
+	<main class="login-shell">
+		<section class="auth-card" aria-label="Secure login">
+			<div class="logo-wrap">
+				<img src="img/uht_bg.png" alt="Umlilo HealthTech logo" class="brand-logo">
+			</div>
+			<h1 class="login-title">Secure Login</h1>
+			<p class="login-subtitle">Choose your role and enter your credentials.</p>
+
+			<form id="loginForm">
+				<div class="role-toggle" aria-label="Select role">
+					<div class="role-option">
+						<input type="radio" id="roleNurse" name="role" value="nurse" checked>
+						<label for="roleNurse">Nurse</label>
+					</div>
+					<div class="role-option">
+						<input type="radio" id="roleDoctor" name="role" value="doctor">
+						<label for="roleDoctor">Doctor</label>
 					</div>
 				</div>
-			</div>
 
-			<div class="col-lg-7">
-				<div class="card auth-card p-4 p-lg-5 h-100">
-					<h2 class="login-title mb-2">Sign in</h2>
-					<p class="text-muted login-subtitle mb-4">Use your staff ID and password to continue.</p>
-
-					<ul class="nav nav-pills mb-4" id="roleTabs" role="tablist">
-						<li class="nav-item" role="presentation">
-							<button class="nav-link active" id="nurse-tab" data-bs-toggle="pill" data-bs-target="#nurse-login" type="button" role="tab">Nurse</button>
-						</li>
-						<li class="nav-item" role="presentation">
-							<button class="nav-link" id="doctor-tab" data-bs-toggle="pill" data-bs-target="#doctor-login" type="button" role="tab">Doctor</button>
-						</li>
-					</ul>
-
-					<div class="tab-content">
-						<div class="tab-pane fade show active" id="nurse-login" role="tabpanel">
-							<form class="login-form" data-role="nurse">
-								<div class="row g-3">
-									<div class="col-md-6">
-										<label class="form-label">Nurse ID</label>
-										<input type="text" class="form-control" name="staffId" placeholder="e.g. NUR-1024">
-									</div>
-									<div class="col-md-6">
-										<label class="form-label">Password</label>
-										<input type="password" class="form-control" name="password" placeholder="********">
-									</div>
-								</div>
-								<div class="d-flex flex-wrap gap-2 mt-4">
-									<button type="submit" class="btn btn-primary px-4">Sign in</button>
-									<button type="button" class="btn btn-outline-primary">Forgot password</button>
-								</div>
-							</form>
-						</div>
-
-						<div class="tab-pane fade" id="doctor-login" role="tabpanel">
-							<form class="login-form" data-role="doctor">
-								<div class="row g-3">
-									<div class="col-md-6">
-										<label class="form-label">Doctor ID</label>
-										<input type="text" class="form-control" name="staffId" placeholder="e.g. DR-2048">
-									</div>
-									<div class="col-md-6">
-										<label class="form-label">Password</label>
-										<input type="password" class="form-control" name="password" placeholder="********">
-									</div>
-								</div>
-								<div class="d-flex flex-wrap gap-2 mt-4">
-									<button type="submit" class="btn btn-primary px-4">Sign in</button>
-									<button type="button" class="btn btn-outline-primary">Forgot password</button>
-								</div>
-							</form>
-						</div>
-					</div>
-					<div id="loginAlert" class="alert alert-info mt-4 d-none"></div>
-					<div class="d-flex flex-wrap align-items-center justify-content-between mt-4">
-						<small class="text-muted">By signing in, you agree to the facility access policy.</small>
-						<a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy & terms</a>
-					</div>
+				<div class="mb-3">
+					<label class="form-label" for="staffIdInput" id="staffIdLabel">Nurse ID</label>
+					<input type="text" class="form-control" id="staffIdInput" name="staffId" placeholder="e.g. NUR-1024" autocomplete="username">
 				</div>
+				<div class="mb-3">
+					<label class="form-label" for="passwordInput">Password</label>
+					<input type="password" class="form-control" id="passwordInput" name="password" placeholder="Enter password" autocomplete="current-password">
+				</div>
+
+				<button type="submit" class="btn btn-primary w-100 mt-2">Sign in</button>
+			</form>
+
+			<div id="loginAlert" class="alert alert-info mt-4 d-none"></div>
+			<div class="meta-row">
+				<a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy & terms</a>
 			</div>
-		</div>
-	</div>
+		</section>
+	</main>
 
 	<div class="modal fade" id="privacyModal" tabindex="-1" aria-hidden="true">
 		<div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -265,6 +267,9 @@
 	var loadingCount = 0;
 	var loadingStart = 0;
 	var loadingMinMs = 500;
+	var staffIdLabel = document.getElementById("staffIdLabel");
+	var staffIdInput = document.getElementById("staffIdInput");
+
 	function showLoading() {
 		loadingCount += 1;
 		if (loadingCount === 1) {
@@ -272,6 +277,7 @@
 		}
 		document.getElementById("loadingOverlay").classList.add("show");
 	}
+
 	function hideLoading() {
 		loadingCount = Math.max(0, loadingCount - 1);
 		if (loadingCount === 0) {
@@ -292,49 +298,64 @@
 		alertEl.classList.remove("d-none");
 	}
 
-	document.querySelectorAll(".login-form").forEach(function (form) {
-		form.addEventListener("submit", function (event) {
-			event.preventDefault();
-			var role = form.getAttribute("data-role");
-			var payload = {
-				staffId: form.querySelector("[name='staffId']").value.trim(),
-				password: form.querySelector("[name='password']").value.trim(),
-				role: role
-			};
+	function getSelectedRole() {
+		return document.querySelector("input[name='role']:checked").value;
+	}
 
-			showLoading();
-			fetch("rest/auth/login", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(payload)
-			})
-			.then(function (response) { return response.json().then(function (data) { return { status: response.status, data: data }; }); })
-			.then(function (result) {
-				if (result.status === 200 && result.data.success) {
-					var serverRole = result.data.role ? result.data.role.toLowerCase() : "";
-					if (role !== serverRole) {
-						showAlert("Role mismatch. Please use the " + (serverRole || "correct") + " login tab.", "warning");
-						return;
-					}
-					showAlert("Login successful. Redirecting...", "success");
-					if (serverRole === "doctor") {
-						window.location.href = "doctor";
-					} else {
-						window.location.href = "home";
-					}
-				} else {
-					var message = result.data && result.data.message ? result.data.message : "Login failed.";
-					showAlert(message, "warning");
+	function updateRoleFields() {
+		var role = getSelectedRole();
+		var isDoctor = role === "doctor";
+		staffIdLabel.textContent = isDoctor ? "Doctor ID" : "Nurse ID";
+		staffIdInput.placeholder = isDoctor ? "e.g. DR-2048" : "e.g. NUR-1024";
+	}
+
+	document.querySelectorAll("input[name='role']").forEach(function (input) {
+		input.addEventListener("change", updateRoleFields);
+	});
+
+	document.getElementById("loginForm").addEventListener("submit", function (event) {
+		event.preventDefault();
+		var role = getSelectedRole();
+		var payload = {
+			staffId: staffIdInput.value.trim(),
+			password: document.getElementById("passwordInput").value.trim(),
+			role: role
+		};
+
+		showLoading();
+		fetch("rest/auth/login", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(payload)
+		})
+		.then(function (response) { return response.json().then(function (data) { return { status: response.status, data: data }; }); })
+		.then(function (result) {
+			if (result.status === 200 && result.data.success) {
+				var serverRole = result.data.role ? result.data.role.toLowerCase() : "";
+				if (role !== serverRole) {
+					showAlert("Role mismatch. Please use the " + (serverRole || "correct") + " role.", "warning");
+					return;
 				}
-			})
-			.catch(function () {
-				showAlert("Unable to reach server. Please try again.", "danger");
-			})
-			.finally(function () {
-				hideLoading();
-			});
+				showAlert("Login successful. Redirecting...", "success");
+				if (serverRole === "doctor") {
+					window.location.href = "doctor";
+				} else {
+					window.location.href = "home";
+				}
+			} else {
+				var message = result.data && result.data.message ? result.data.message : "Login failed.";
+				showAlert(message, "warning");
+			}
+		})
+		.catch(function () {
+			showAlert("Unable to reach server. Please try again.", "danger");
+		})
+		.finally(function () {
+			hideLoading();
 		});
 	});
+
+	updateRoleFields();
 </script>
 </body>
 </html>

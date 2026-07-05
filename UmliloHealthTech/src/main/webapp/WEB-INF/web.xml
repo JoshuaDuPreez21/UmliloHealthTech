@@ -73,6 +73,24 @@
   </servlet-mapping>
 
   <servlet>
+    <servlet-name>screening-page</servlet-name>
+    <jsp-file>/screening.jsp</jsp-file>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>screening-page</servlet-name>
+    <url-pattern>/screening</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>health-education-page</servlet-name>
+    <jsp-file>/health-education.jsp</jsp-file>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>health-education-page</servlet-name>
+    <url-pattern>/health-education</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
     <servlet-name>doctor-page</servlet-name>
     <jsp-file>/doctor.jsp</jsp-file>
   </servlet>

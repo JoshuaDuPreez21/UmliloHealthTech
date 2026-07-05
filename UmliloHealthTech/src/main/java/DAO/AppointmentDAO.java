@@ -230,10 +230,36 @@ public class AppointmentDAO {
 		}
 	}
 
+	public int countAppointmentsForNurseByStatusOnDate(String nurseName, String status, Date date) throws SQLException {
+		String sql = "SELECT COUNT(*) AS total FROM appointments WHERE nurse_name = ? AND status = ? AND DATE(appointment_time) = ?";
+		try (Connection conn = DBUtil.getConnection();
+				PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, nurseName);
+			ps.setString(2, status);
+			ps.setDate(3, date);
+			try (ResultSet rs = ps.executeQuery()) {
+				return rs.next() ? rs.getInt("total") : 0;
+			}
+		}
+	}
+
+	public int countActivePrescriptionsForNurse(String nurseName) throws SQLException {
+		String sql = "SELECT COUNT(*) AS total FROM appointments " +
+				"WHERE nurse_name = ? AND prescription IS NOT NULL AND TRIM(prescription) <> '' AND status <> 'COMPLETED'";
+		try (Connection conn = DBUtil.getConnection();
+				PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, nurseName);
+			try (ResultSet rs = ps.executeQuery()) {
+				return rs.next() ? rs.getInt("total") : 0;
+			}
+		}
+	}
+
 	public List<Appointment> findAppointmentsByPatient(Long patientId, String filter) throws SQLException {
 		List<Appointment> results = new ArrayList<>();
 		StringBuilder sql = new StringBuilder(
-			"SELECT id, patient_id, appointment_time, status, nurse_name, doctor_name, visit_summary " +
+			"SELECT id, patient_id, appointment_time, status, nurse_name, doctor_name, visit_summary, " +
+			"nurse_notes, prescription, doctor_summary, additional_notes " +
 			"FROM appointments WHERE patient_id = ? "
 		);
 
@@ -258,6 +284,10 @@ public class AppointmentDAO {
 					appointment.setNurseName(rs.getString("nurse_name"));
 					appointment.setDoctorName(rs.getString("doctor_name"));
 					appointment.setVisitSummary(rs.getString("visit_summary"));
+					appointment.setNurseNotes(rs.getString("nurse_notes"));
+					appointment.setPrescription(rs.getString("prescription"));
+					appointment.setDoctorSummary(rs.getString("doctor_summary"));
+					appointment.setAdditionalNotes(rs.getString("additional_notes"));
 					results.add(appointment);
 				}
 			}

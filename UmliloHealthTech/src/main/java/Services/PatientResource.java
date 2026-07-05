@@ -48,12 +48,29 @@ public class PatientResource {
 
 		PatientDAO patientDAO = new PatientDAO();
 		AppointmentDAO appointmentDAO = new AppointmentDAO();
+		Date today = Date.valueOf(LocalDate.now());
+		List<Appointment> todaysAppointments = appointmentDAO.findAppointmentsForNurseOnDate(nurseName, today);
+		SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
+		JSONArray recentPatients = new JSONArray();
+		for (Appointment appointment : todaysAppointments) {
+			JSONObject item = new JSONObject();
+			item.put("appointmentId", appointment.getId());
+			item.put("patientName", appointment.getPatientName());
+			item.put("idNumber", appointment.getPatientIdNumber());
+			item.put("dateOfVisit", appointment.getAppointmentTime() == null ? "-" : formatter.format(appointment.getAppointmentTime()));
+			item.put("status", appointment.getStatus());
+			recentPatients.put(item);
+		}
 
 		toReturn.put("success", true);
 		toReturn.put("fullName", nurseName);
 		toReturn.put("patientsCapturedToday", patientDAO.countPatientsCapturedToday());
 		toReturn.put("totalPatients", patientDAO.countPatients());
-		toReturn.put("todaysAppointments", appointmentDAO.countAppointmentsForNurseOnDate(nurseName, Date.valueOf(LocalDate.now())));
+		toReturn.put("todaysAppointments", todaysAppointments.size());
+		toReturn.put("inConsultation", appointmentDAO.countAppointmentsForNurseByStatusOnDate(nurseName, "IN_PROGRESS", today));
+		toReturn.put("pendingLabResults", 0);
+		toReturn.put("activePrescriptions", appointmentDAO.countActivePrescriptionsForNurse(nurseName));
+		toReturn.put("recentPatients", recentPatients);
 		return Response.status(200).entity(toReturn.toString()).build();
 	}
 
@@ -91,6 +108,86 @@ public class PatientResource {
 
 		toReturn.put("success", true);
 		toReturn.put("patients", results);
+		return Response.status(200).entity(toReturn.toString()).build();
+	}
+
+	@Path("list")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response listPatients(@QueryParam("query") String query,
+			@Context HttpServletRequest request) throws SQLException, JSONException {
+		JSONObject toReturn = new JSONObject();
+
+		boolean isValidSession = helper.validateSession(request);
+		if (!isValidSession) {
+			return Response.status(401).entity(toReturn.toString()).build();
+		}
+
+		PatientDAO patientDAO = new PatientDAO();
+		List<Patient> patients = patientDAO.findRecentPatients(query, 60);
+		JSONArray results = new JSONArray();
+		for (Patient patient : patients) {
+			results.put(patientToJson(patient));
+		}
+
+		toReturn.put("success", true);
+		toReturn.put("patients", results);
+		return Response.status(200).entity(toReturn.toString()).build();
+	}
+
+	@Path("detail")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getPatientDetail(@QueryParam("id") long id,
+			@Context HttpServletRequest request) throws SQLException, JSONException {
+		JSONObject toReturn = new JSONObject();
+
+		boolean isValidSession = helper.validateSession(request);
+		if (!isValidSession) {
+			return Response.status(401).entity(toReturn.toString()).build();
+		}
+
+		PatientDAO patientDAO = new PatientDAO();
+		Patient patient = patientDAO.findById(id);
+		if (patient == null) {
+			toReturn.put("error", true);
+			toReturn.put("message", "Patient not found.");
+			return Response.status(404).entity(toReturn.toString()).build();
+		}
+
+		AppointmentDAO appointmentDAO = new AppointmentDAO();
+		List<Appointment> appointments = appointmentDAO.findAppointmentsByPatient(patient.getId(), "all");
+		SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy, HH:mm");
+
+		JSONArray visits = new JSONArray();
+		JSONArray prescriptions = new JSONArray();
+		JSONArray diagnoses = new JSONArray();
+		JSONArray medicalHistory = new JSONArray();
+		for (Appointment appointment : appointments) {
+			JSONObject visit = appointmentToJson(appointment, formatter);
+			visits.put(visit);
+			medicalHistory.put(visit);
+
+			if (appointment.getDoctorSummary() != null && !appointment.getDoctorSummary().trim().isEmpty()) {
+				JSONObject diagnosis = appointmentToJson(appointment, formatter);
+				diagnosis.put("diagnosis", appointment.getDoctorSummary());
+				diagnoses.put(diagnosis);
+			}
+
+			if (appointment.getPrescription() != null && !appointment.getPrescription().trim().isEmpty()) {
+				JSONObject prescription = appointmentToJson(appointment, formatter);
+				prescription.put("prescription", appointment.getPrescription());
+				prescriptions.put(prescription);
+			}
+		}
+
+		toReturn.put("success", true);
+		toReturn.put("patient", patientToJson(patient));
+		toReturn.put("medicalHistory", medicalHistory);
+		toReturn.put("visits", visits);
+		toReturn.put("diagnoses", diagnoses);
+		toReturn.put("prescriptions", prescriptions);
+		toReturn.put("labResults", new JSONArray());
 		return Response.status(200).entity(toReturn.toString()).build();
 	}
 
@@ -254,5 +351,45 @@ public class PatientResource {
 			return null;
 		}
 		return jsonObject.getString(field).trim();
+	}
+
+	private JSONObject patientToJson(Patient patient) throws JSONException {
+		JSONObject patientJson = new JSONObject();
+		patientJson.put("id", patient.getId());
+		patientJson.put("firstName", patient.getFirstName());
+		patientJson.put("surname", patient.getSurname());
+		patientJson.put("fullName", patient.getFirstName() + " " + patient.getSurname());
+		patientJson.put("idNumber", patient.getIdNumber());
+		patientJson.put("cell", patient.getCell());
+		patientJson.put("gender", patient.getGender());
+		patientJson.put("email", patient.getEmail());
+		patientJson.put("address", patient.getAddress());
+		patientJson.put("employmentStatus", patient.getEmploymentStatus());
+		patientJson.put("jobTitle", patient.getJobTitle());
+		patientJson.put("nextOfKinName", patient.getNextOfKinName());
+		patientJson.put("nextOfKinRelation", patient.getNextOfKinRelation());
+		patientJson.put("emergencyContact", patient.getEmergencyContact());
+		patientJson.put("nationality", patient.getNationality());
+		patientJson.put("foreignId", patient.getForeignId());
+		patientJson.put("illnesses", patient.getIllnesses());
+		patientJson.put("illnessNotes", patient.getIllnessNotes());
+		patientJson.put("consent", patient.isConsent());
+		patientJson.put("allergies", "Not recorded");
+		return patientJson;
+	}
+
+	private JSONObject appointmentToJson(Appointment appointment, SimpleDateFormat formatter) throws JSONException {
+		JSONObject item = new JSONObject();
+		item.put("id", appointment.getId());
+		item.put("date", appointment.getAppointmentTime() == null ? "-" : formatter.format(appointment.getAppointmentTime()));
+		item.put("status", appointment.getStatus());
+		item.put("summary", appointment.getVisitSummary());
+		item.put("nurseName", appointment.getNurseName());
+		item.put("doctorName", appointment.getDoctorName());
+		item.put("nurseNotes", appointment.getNurseNotes());
+		item.put("prescription", appointment.getPrescription());
+		item.put("doctorSummary", appointment.getDoctorSummary());
+		item.put("additionalNotes", appointment.getAdditionalNotes());
+		return item;
 	}
 }

@@ -26,6 +26,8 @@ public class PageAccessFilter implements Filter {
 		roleRoutes.put("/appointment", "nurse");
 		roleRoutes.put("/current-appointment", "nurse");
 		roleRoutes.put("/capture-appointment", "nurse");
+		roleRoutes.put("/screening", "nurse");
+		roleRoutes.put("/health-education", "nurse");
 	}
 
 	@Override

@@ -140,6 +140,7 @@ public class AppointmentResource {
 			item.put("patientIdNumber", appointment.getPatientIdNumber());
 			item.put("dateTime", appointment.getAppointmentTime() == null ? "-" : formatter.format(appointment.getAppointmentTime().toLocalDateTime()));
 			item.put("status", appointment.getStatus());
+			item.put("visitSummary", appointment.getVisitSummary());
 			data.put(item);
 		}
 

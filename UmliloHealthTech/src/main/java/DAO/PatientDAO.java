@@ -67,6 +67,56 @@ public class PatientDAO {
 		}
 	}
 
+	public List<Patient> findRecentPatients(String query, int limit) throws SQLException {
+		List<Patient> results = new ArrayList<>();
+		StringBuilder sql = new StringBuilder("SELECT id, first_name, surname, id_number, cell, gender, address, email, employment_status, job_title, " +
+				"next_of_kin_name, next_of_kin_relation, emergency_contact, is_south_african, nationality, foreign_id, illnesses, illness_notes, consent " +
+				"FROM patients ");
+		boolean hasQuery = query != null && !query.trim().isEmpty();
+		if (hasQuery) {
+			sql.append("WHERE id_number LIKE ? OR first_name LIKE ? OR surname LIKE ? ");
+		}
+		sql.append("ORDER BY id DESC LIMIT ?");
+
+		try (Connection conn = DBUtil.getConnection();
+				PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+			int index = 1;
+			if (hasQuery) {
+				String likeQuery = "%" + query.trim() + "%";
+				ps.setString(index++, likeQuery);
+				ps.setString(index++, likeQuery);
+				ps.setString(index++, likeQuery);
+			}
+			ps.setInt(index, limit);
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					Patient patient = new Patient();
+					patient.setId(rs.getLong("id"));
+					patient.setFirstName(rs.getString("first_name"));
+					patient.setSurname(rs.getString("surname"));
+					patient.setIdNumber(rs.getString("id_number"));
+					patient.setCell(rs.getString("cell"));
+					patient.setGender(rs.getString("gender"));
+					patient.setAddress(rs.getString("address"));
+					patient.setEmail(rs.getString("email"));
+					patient.setEmploymentStatus(rs.getString("employment_status"));
+					patient.setJobTitle(rs.getString("job_title"));
+					patient.setNextOfKinName(rs.getString("next_of_kin_name"));
+					patient.setNextOfKinRelation(rs.getString("next_of_kin_relation"));
+					patient.setEmergencyContact(rs.getString("emergency_contact"));
+					patient.setSouthAfrican(rs.getBoolean("is_south_african"));
+					patient.setNationality(rs.getString("nationality"));
+					patient.setForeignId(rs.getString("foreign_id"));
+					patient.setIllnesses(rs.getString("illnesses"));
+					patient.setIllnessNotes(rs.getString("illness_notes"));
+					patient.setConsent(rs.getBoolean("consent"));
+					results.add(patient);
+				}
+			}
+		}
+		return results;
+	}
+
 	public Patient findByIdNumber(String idNumber) throws SQLException {
 		String sql = "SELECT id, first_name, surname, id_number, cell, gender, address, email, employment_status, job_title, " +
 				"next_of_kin_name, next_of_kin_relation, emergency_contact, is_south_african, nationality, foreign_id, illnesses, illness_notes, consent " +
