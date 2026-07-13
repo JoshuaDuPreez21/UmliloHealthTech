@@ -67,9 +67,9 @@
 		align-items: center;
 		justify-content: center;
 	}
-	.notification-count {
-		position: absolute;
-		top: -4px;
+		.notification-count {
+			position: absolute;
+			top: -4px;
 		right: -2px;
 		background: var(--orange);
 		color: #fff;
@@ -79,9 +79,12 @@
 		font-size: 0.74rem;
 		font-weight: 800;
 		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-	}
+			align-items: center;
+			justify-content: center;
+		}
+		.notification-count.is-empty {
+			display: none;
+		}
 	.main-content {
 		padding: 2.85rem 2.35rem;
 		max-width: 1180px;
@@ -284,13 +287,31 @@
 		text-overflow: ellipsis;
 	}
 	.patient-id,
-	.patient-date {
-		color: var(--muted);
-		font-size: 0.88rem;
-	}
-	.patient-status {
-		background: #dcfce7;
-		border: 1px solid #86efac;
+		.patient-date {
+			color: var(--muted);
+			font-size: 0.88rem;
+		}
+		.patient-action {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 0.35rem;
+			border-radius: 7px;
+			background: #dff0fa;
+			color: #0879ad;
+			text-decoration: none;
+			font-size: 0.76rem;
+			font-weight: 800;
+			padding: 0.36rem 0.62rem;
+			margin-top: 0.55rem;
+		}
+		.patient-action:hover {
+			background: #c8e6f3;
+			color: #075f88;
+		}
+		.patient-status {
+			background: #dcfce7;
+			border: 1px solid #86efac;
 		color: #047857;
 		border-radius: 999px;
 		padding: 0.32rem 0.8rem;
@@ -536,10 +557,10 @@
 
 	<div class="app-shell">
 		<header class="topbar">
-			<button class="notification" type="button" aria-label="Notifications">
-				<i class="bi bi-bell"></i>
-				<span class="notification-count">4</span>
-			</button>
+				<button class="notification" id="notificationBtn" type="button" aria-label="Open today's visits">
+					<i class="bi bi-bell"></i>
+					<span class="notification-count is-empty" id="notificationCount">0</span>
+				</button>
 		</header>
 
 		<main class="main-content">
@@ -561,36 +582,36 @@
 			</section>
 
 			<section class="metrics-grid mb-4" aria-label="Dashboard metrics">
-				<div class="metric-card">
-					<div class="metric-top">
-						<div class="metric-label">In Consultation</div>
-						<div class="metric-icon bg-brand"><i class="bi bi-check2-circle"></i></div>
+					<div class="metric-card">
+						<div class="metric-top">
+							<div class="metric-label">Patients Captured Today</div>
+							<div class="metric-icon bg-brand"><i class="bi bi-person-plus"></i></div>
+						</div>
+						<div>
+							<div class="metric-value" id="patientsCapturedTodayCount">0</div>
+							<p class="metric-note">New records opened</p>
+						</div>
 					</div>
-					<div>
-						<div class="metric-value" id="inConsultationCount">0</div>
-						<p class="metric-note">Active now</p>
+					<div class="metric-card">
+						<div class="metric-top">
+							<div class="metric-label">Total Patients</div>
+							<div class="metric-icon bg-blue"><i class="bi bi-people"></i></div>
+						</div>
+						<div>
+							<div class="metric-value" id="totalPatientsCount">0</div>
+							<p class="metric-note">Records in the system</p>
+						</div>
 					</div>
-				</div>
-				<div class="metric-card">
-					<div class="metric-top">
-						<div class="metric-label">Pending Lab Results</div>
-						<div class="metric-icon bg-blue"><i class="bi bi-flask"></i></div>
+					<div class="metric-card">
+						<div class="metric-top">
+							<div class="metric-label">Active Prescriptions</div>
+							<div class="metric-icon bg-orange"><i class="bi bi-capsule"></i></div>
+						</div>
+						<div>
+							<div class="metric-value" id="activePrescriptionsCount">0</div>
+							<p class="metric-note">Medication items recorded</p>
+						</div>
 					</div>
-					<div>
-						<div class="metric-value" id="pendingLabResultsCount">0</div>
-						<p class="metric-note note-danger">Awaiting review</p>
-					</div>
-				</div>
-				<div class="metric-card">
-					<div class="metric-top">
-						<div class="metric-label">Active Prescriptions</div>
-						<div class="metric-icon bg-orange"><i class="bi bi-capsule"></i></div>
-					</div>
-					<div>
-						<div class="metric-value" id="activePrescriptionsCount">0</div>
-						<p class="metric-note">Open medication items</p>
-					</div>
-				</div>
 				<div class="metric-card">
 					<div class="metric-top">
 						<div class="metric-label">Visits Today</div>
@@ -604,40 +625,40 @@
 			</section>
 
 			<section class="dashboard-lower">
-				<div class="content-panel">
-					<div class="panel-header">
-						<h2 class="panel-title">Quick Actions</h2>
-					</div>
-					<div class="action-grid">
-						<a href="capture-appointment" class="action-card">
-							<span class="action-icon bg-brand"><i class="bi bi-pencil"></i></span>
-							<span>
-								<span class="action-title d-block">Write Prescription</span>
-								<span class="action-copy">Issue medication notes</span>
-							</span>
-						</a>
-						<a href="#" class="action-card">
-							<span class="action-icon bg-blue"><i class="bi bi-flask"></i></span>
-							<span>
-								<span class="action-title d-block">Order Lab Results</span>
-								<span class="action-copy">Request diagnostics</span>
-							</span>
-						</a>
-						<a href="#" class="action-card">
-							<span class="action-icon bg-orange"><i class="bi bi-clipboard2-check"></i></span>
-							<span>
-								<span class="action-title d-block">Review Lab Results</span>
-								<span class="action-copy">Check pending reports</span>
-							</span>
-						</a>
-						<a href="visits-today" class="action-card">
-							<span class="action-icon bg-teal"><i class="bi bi-chat-square-text"></i></span>
-							<span>
-								<span class="action-title d-block">Consultations</span>
-								<span class="action-copy">Open patient visits</span>
-							</span>
-						</a>
-					</div>
+					<div class="content-panel">
+						<div class="panel-header">
+							<h2 class="panel-title">Quick Actions</h2>
+						</div>
+						<div class="action-grid">
+							<a href="patient" class="action-card">
+								<span class="action-icon bg-brand"><i class="bi bi-person-plus"></i></span>
+								<span>
+									<span class="action-title d-block">Register Patient</span>
+									<span class="action-copy">Capture a new patient record</span>
+								</span>
+							</a>
+							<a href="appointment" class="action-card">
+								<span class="action-icon bg-blue"><i class="bi bi-search"></i></span>
+								<span>
+									<span class="action-title d-block">Look Up Records</span>
+									<span class="action-copy">Search patients and histories</span>
+								</span>
+							</a>
+							<a href="capture-appointment?tab=book" class="action-card">
+								<span class="action-icon bg-orange"><i class="bi bi-calendar2-plus"></i></span>
+								<span>
+									<span class="action-title d-block">Book Appointment</span>
+									<span class="action-copy">Schedule a patient visit</span>
+								</span>
+							</a>
+							<a href="current-appointment" class="action-card">
+								<span class="action-icon bg-teal"><i class="bi bi-diagram-3"></i></span>
+								<span>
+									<span class="action-title d-block">Patient Flow</span>
+									<span class="action-copy">Track today's care stages</span>
+								</span>
+							</a>
+						</div>
 				</div>
 
 				<div class="content-panel">
@@ -668,12 +689,21 @@
 		return parts.slice(0, 2).map(function (part) { return part.charAt(0).toUpperCase(); }).join("");
 	}
 
-	function statusLabel(status) {
-		if (!status) return "Active";
-		return status.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, function (letter) {
-			return letter.toUpperCase();
-		});
-	}
+		function statusLabel(status) {
+			if (!status) return "Active";
+			return status.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, function (letter) {
+				return letter.toUpperCase();
+			});
+		}
+
+		function escapeHtml(value) {
+			return String(value == null ? "" : value)
+				.replace(/&/g, "&amp;")
+				.replace(/</g, "&lt;")
+				.replace(/>/g, "&gt;")
+				.replace(/"/g, "&quot;")
+				.replace(/'/g, "&#039;");
+		}
 
 	function renderRecentPatients(patients) {
 		var list = document.getElementById("recentPatientsList");
@@ -683,35 +713,41 @@
 			return;
 		}
 
-		patients.slice(0, 6).forEach(function (patient) {
-			var name = patient.patientName || "Unnamed Patient";
-			var row = document.createElement("div");
-			row.className = "patient-row";
-			row.innerHTML =
-				"<div class=\"patient-avatar\">" + initialsFromName(name) + "</div>" +
-				"<div>" +
-					"<div class=\"patient-name\">" + name + "</div>" +
-					"<div class=\"patient-id\">ID: " + (patient.idNumber || "-") + "</div>" +
-				"</div>" +
-				"<div class=\"text-end\">" +
-					"<div class=\"patient-status\">" + statusLabel(patient.status) + "</div>" +
-					"<div class=\"patient-date mt-2\">" + (patient.dateOfVisit || "-") + "</div>" +
-				"</div>";
-			list.appendChild(row);
-		});
+			patients.slice(0, 6).forEach(function (patient) {
+				var name = patient.patientName || "Unnamed Patient";
+				var appointmentHref = patient.appointmentId ? "capture-appointment?appointmentId=" + encodeURIComponent(patient.appointmentId) : "visits-today";
+				var row = document.createElement("div");
+				row.className = "patient-row";
+				row.innerHTML =
+					"<div class=\"patient-avatar\">" + escapeHtml(initialsFromName(name)) + "</div>" +
+					"<div>" +
+						"<div class=\"patient-name\">" + escapeHtml(name) + "</div>" +
+						"<div class=\"patient-id\">ID: " + escapeHtml(patient.idNumber || "-") + "</div>" +
+					"</div>" +
+					"<div class=\"text-end\">" +
+						"<div class=\"patient-status\">" + escapeHtml(statusLabel(patient.status)) + "</div>" +
+						"<div class=\"patient-date mt-2\">" + escapeHtml(patient.dateOfVisit || "-") + "</div>" +
+						"<a class=\"patient-action\" href=\"" + appointmentHref + "\"><i class=\"bi bi-stethoscope\"></i> Open</a>" +
+					"</div>";
+				list.appendChild(row);
+			});
 	}
 
 	function setDashboardFallback() {
 		renderRecentPatients([]);
 	}
 
-	document.getElementById("sidebarToggle").addEventListener("click", function () {
-		if (window.matchMedia("(max-width: 880px)").matches) {
-			document.body.classList.toggle("sidebar-open");
-		} else {
-			document.body.classList.toggle("sidebar-collapsed");
-		}
-	});
+		document.getElementById("sidebarToggle").addEventListener("click", function () {
+			if (window.matchMedia("(max-width: 880px)").matches) {
+				document.body.classList.toggle("sidebar-open");
+			} else {
+				document.body.classList.toggle("sidebar-collapsed");
+			}
+		});
+
+		document.getElementById("notificationBtn").addEventListener("click", function () {
+			window.location.href = "visits-today";
+		});
 
 	fetch("rest/patients/dashboard")
 		.then(function (response) {
@@ -719,13 +755,15 @@
 		})
 		.then(function (result) {
 			if (result.status === 200 && result.data.success) {
-				var fullName = result.data.fullName || "Nurse";
-				setText("nurseName", fullName);
-				setText("nurseInitials", initialsFromName(fullName));
-				setText("inConsultationCount", result.data.inConsultation || 0);
-				setText("pendingLabResultsCount", result.data.pendingLabResults || 0);
-				setText("activePrescriptionsCount", result.data.activePrescriptions || 0);
-				setText("visitsTodayCount", result.data.todaysAppointments || 0);
+					var fullName = result.data.fullName || "Nurse";
+					setText("nurseName", fullName);
+					setText("nurseInitials", initialsFromName(fullName));
+					setText("patientsCapturedTodayCount", result.data.patientsCapturedToday || 0);
+					setText("totalPatientsCount", result.data.totalPatients || 0);
+					setText("activePrescriptionsCount", result.data.activePrescriptions || 0);
+						setText("visitsTodayCount", result.data.todaysAppointments || 0);
+						setText("notificationCount", result.data.todaysAppointments || 0);
+						document.getElementById("notificationCount").classList.toggle("is-empty", !result.data.todaysAppointments);
 				renderRecentPatients(result.data.recentPatients || []);
 			} else {
 				setDashboardFallback();

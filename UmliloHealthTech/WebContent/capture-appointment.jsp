@@ -952,7 +952,12 @@
 	document.getElementById("saveAppointmentBtn").addEventListener("click", saveAppointmentNotes);
 
 	setDefaultAppointmentTime();
-	if (new URLSearchParams(window.location.search).get("appointmentId")) {
+	var pageParams = new URLSearchParams(window.location.search);
+	var requestedTab = pageParams.get("tab");
+	if (requestedTab === "lookup" || requestedTab === "book" || requestedTab === "register") {
+		setActiveTab(requestedTab);
+	}
+	if (pageParams.get("appointmentId")) {
 		document.getElementById("workspaceHub").classList.add("hidden");
 		document.getElementById("appointmentCapture").classList.remove("hidden");
 		loadAppointment();
