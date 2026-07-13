@@ -2,8 +2,11 @@ package Services;
 
 import java.sql.SQLException;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,6 +26,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import DAO.AppointmentDAO;
+import DAO.LabResultDAO;
 import DAO.PatientDAO;
 import Models.Appointment;
 import Models.Patient;
@@ -187,7 +191,131 @@ public class PatientResource {
 		toReturn.put("visits", visits);
 		toReturn.put("diagnoses", diagnoses);
 		toReturn.put("prescriptions", prescriptions);
-		toReturn.put("labResults", new JSONArray());
+		LabResultDAO labResultDAO = new LabResultDAO();
+		toReturn.put("labResults", labResultDAO.findByPatient(patient.getId()));
+		return Response.status(200).entity(toReturn.toString()).build();
+	}
+
+	@Path("add-record")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response addPatientRecord(String body, @Context HttpServletRequest request) throws SQLException, JSONException {
+		JSONObject toReturn = new JSONObject();
+
+		boolean isValidSession = helper.validateSession(request);
+		if (!isValidSession) {
+			return Response.status(401).entity(toReturn.toString()).build();
+		}
+
+		JSONObject jsonObject = new JSONObject(body);
+		long patientId = jsonObject.optLong("patientId", 0);
+		String recordType = jsonObject.optString("recordType", "").trim();
+		String title = jsonObject.optString("title", "").trim();
+		String details = jsonObject.optString("details", "").trim();
+		String prescription = jsonObject.optString("prescription", "").trim();
+		String provider = jsonObject.optString("provider", "").trim();
+		String dateValue = jsonObject.optString("date", "").trim();
+		String status = jsonObject.optString("status", "COMPLETED").trim().toUpperCase();
+
+		if (patientId <= 0 || recordType.isEmpty()) {
+			toReturn.put("error", true);
+			toReturn.put("message", "Patient and record type are required.");
+			return Response.status(400).entity(toReturn.toString()).build();
+		}
+		if (title.isEmpty() && details.isEmpty() && prescription.isEmpty()) {
+			toReturn.put("error", true);
+			toReturn.put("message", "Record details are required.");
+			return Response.status(400).entity(toReturn.toString()).build();
+		}
+
+		PatientDAO patientDAO = new PatientDAO();
+		Patient patient = patientDAO.findById(patientId);
+		if (patient == null) {
+			toReturn.put("error", true);
+			toReturn.put("message", "Patient not found.");
+			return Response.status(404).entity(toReturn.toString()).build();
+		}
+
+		HttpSession session = request.getSession(false);
+		String staffName = session != null ? (String) session.getAttribute("fullName") : null;
+		String nurseName = staffName;
+		String doctorName = provider.isEmpty() ? null : provider;
+		String visitSummary = title.isEmpty() ? details : title;
+		String nurseNotes = null;
+		String doctorSummary = null;
+		String additionalNotes = details.isEmpty() ? null : details;
+
+		if ("visit".equalsIgnoreCase(recordType)) {
+			nurseNotes = details;
+		} else if ("prescription".equalsIgnoreCase(recordType)) {
+			visitSummary = title.isEmpty() ? "Prescription issued" : title;
+			doctorSummary = details;
+		} else {
+			doctorSummary = details;
+		}
+
+		AppointmentDAO appointmentDAO = new AppointmentDAO();
+		boolean saved = appointmentDAO.createPatientRecord(patientId, parseDateTime(dateValue), status,
+				nurseName, doctorName, visitSummary, nurseNotes, prescription.isEmpty() ? null : prescription,
+				doctorSummary, additionalNotes);
+		if (!saved) {
+			toReturn.put("error", true);
+			toReturn.put("message", "Unable to save record.");
+			return Response.status(500).entity(toReturn.toString()).build();
+		}
+
+		toReturn.put("success", true);
+		toReturn.put("message", "Record saved.");
+		return Response.status(200).entity(toReturn.toString()).build();
+	}
+
+	@Path("add-lab-result")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response addLabResult(String body, @Context HttpServletRequest request) throws SQLException, JSONException {
+		JSONObject toReturn = new JSONObject();
+
+		boolean isValidSession = helper.validateSession(request);
+		if (!isValidSession) {
+			return Response.status(401).entity(toReturn.toString()).build();
+		}
+
+		JSONObject jsonObject = new JSONObject(body);
+		long patientId = jsonObject.optLong("patientId", 0);
+		String testName = jsonObject.optString("testName", "").trim();
+		String resultValue = jsonObject.optString("resultValue", "").trim();
+		String status = jsonObject.optString("status", "").trim();
+		String orderedBy = jsonObject.optString("orderedBy", "").trim();
+		String notes = jsonObject.optString("notes", "").trim();
+		String dateValue = jsonObject.optString("date", "").trim();
+
+		if (patientId <= 0 || testName.isEmpty()) {
+			toReturn.put("error", true);
+			toReturn.put("message", "Patient and test name are required.");
+			return Response.status(400).entity(toReturn.toString()).build();
+		}
+
+		PatientDAO patientDAO = new PatientDAO();
+		if (patientDAO.findById(patientId) == null) {
+			toReturn.put("error", true);
+			toReturn.put("message", "Patient not found.");
+			return Response.status(404).entity(toReturn.toString()).build();
+		}
+
+		LabResultDAO labResultDAO = new LabResultDAO();
+		boolean saved = labResultDAO.saveLabResult(patientId, parseDateTime(dateValue), testName,
+				resultValue.isEmpty() ? null : resultValue, status.isEmpty() ? null : status,
+				orderedBy.isEmpty() ? null : orderedBy, notes.isEmpty() ? null : notes);
+		if (!saved) {
+			toReturn.put("error", true);
+			toReturn.put("message", "Unable to save lab result.");
+			return Response.status(500).entity(toReturn.toString()).build();
+		}
+
+		toReturn.put("success", true);
+		toReturn.put("message", "Lab result saved.");
 		return Response.status(200).entity(toReturn.toString()).build();
 	}
 
@@ -351,6 +479,17 @@ public class PatientResource {
 			return null;
 		}
 		return jsonObject.getString(field).trim();
+	}
+
+	private Timestamp parseDateTime(String dateValue) {
+		if (dateValue == null || dateValue.trim().isEmpty()) {
+			return Timestamp.valueOf(LocalDateTime.now());
+		}
+		String normalized = dateValue.trim();
+		if (normalized.length() == 10) {
+			return Timestamp.valueOf(LocalDateTime.of(LocalDate.parse(normalized), LocalTime.now().withSecond(0).withNano(0)));
+		}
+		return Timestamp.valueOf(LocalDateTime.parse(normalized));
 	}
 
 	private JSONObject patientToJson(Patient patient) throws JSONException {

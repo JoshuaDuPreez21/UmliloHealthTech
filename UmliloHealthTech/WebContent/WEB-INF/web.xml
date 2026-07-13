@@ -4,7 +4,7 @@
   <welcome-file-list>
     <welcome-file>login</welcome-file>
   </welcome-file-list>
-  
+
   <session-config>
     <session-timeout>30</session-timeout>
   </session-config>
@@ -152,8 +152,7 @@
     <servlet-name>logout-servlet</servlet-name>
     <url-pattern>/logout</url-pattern>
   </servlet-mapping>
-  
-  
+
   <servlet>
     <servlet-name>Jersey Web Application</servlet-name>
     <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
@@ -167,11 +166,4 @@
     <servlet-name>Jersey Web Application</servlet-name>
     <url-pattern>/rest/*</url-pattern>
   </servlet-mapping>
-  
-  <resource-ref>
-        <description>MySQL DataSource</description>
-        <res-ref-name>jdbc/MySQLDataSource</res-ref-name>
-        <res-type>javax.sql.DataSource</res-type>
-        <res-auth>Container</res-auth>
-    </resource-ref>
 </web-app>

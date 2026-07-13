@@ -134,13 +134,27 @@ public class AppointmentResource {
 		JSONArray data = new JSONArray();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm");
 		for (Appointment appointment : appointments) {
+			String visitSummary = appointment.getVisitSummary();
+			String additionalDetails = extractVisitField(visitSummary, "Additional Details");
 			JSONObject item = new JSONObject();
 			item.put("id", appointment.getId());
 			item.put("patientName", appointment.getPatientName());
 			item.put("patientIdNumber", appointment.getPatientIdNumber());
 			item.put("dateTime", appointment.getAppointmentTime() == null ? "-" : formatter.format(appointment.getAppointmentTime().toLocalDateTime()));
 			item.put("status", appointment.getStatus());
-			item.put("visitSummary", appointment.getVisitSummary());
+			item.put("nurseName", appointment.getNurseName());
+			item.put("doctorName", appointment.getDoctorName());
+			item.put("visitSummary", visitSummary);
+			item.put("nurseNotes", appointment.getNurseNotes());
+			item.put("prescription", appointment.getPrescription());
+			item.put("doctorSummary", appointment.getDoctorSummary());
+			item.put("additionalNotes", appointment.getAdditionalNotes());
+			item.put("visitType", extractVisitField(visitSummary, "Visit Type"));
+			item.put("department", extractVisitField(visitSummary, "Department"));
+			item.put("attendingProvider", extractVisitField(visitSummary, "Attending Provider"));
+			item.put("chiefComplaint", extractVisitField(visitSummary, "Chief Complaint"));
+			item.put("diagnosis", firstNonBlank(appointment.getDoctorSummary(), appointment.getAdditionalNotes(),
+					additionalDetails, appointment.getNurseNotes(), cleanVisitSummary(visitSummary)));
 			data.put(item);
 		}
 
@@ -594,6 +608,43 @@ public class AppointmentResource {
 		appointmentJson.put("doctorSummary", appointment.getDoctorSummary());
 		appointmentJson.put("additionalNotes", appointment.getAdditionalNotes());
 		return appointmentJson;
+	}
+
+	private String extractVisitField(String summary, String label) {
+		if (summary == null || label == null) {
+			return null;
+		}
+		String prefix = label + ":";
+		for (String line : summary.split("\\r?\\n")) {
+			String trimmed = line.trim();
+			if (trimmed.regionMatches(true, 0, prefix, 0, prefix.length())) {
+				String value = trimmed.substring(prefix.length()).trim();
+				return value.isEmpty() ? null : value;
+			}
+		}
+		return null;
+	}
+
+	private String cleanVisitSummary(String summary) {
+		if (summary == null || summary.trim().isEmpty()) {
+			return null;
+		}
+		if (extractVisitField(summary, "Visit Type") != null || extractVisitField(summary, "Chief Complaint") != null) {
+			return null;
+		}
+		return summary.trim();
+	}
+
+	private String firstNonBlank(String... values) {
+		if (values == null) {
+			return null;
+		}
+		for (String value : values) {
+			if (value != null && !value.trim().isEmpty()) {
+				return value.trim();
+			}
+		}
+		return null;
 	}
 
 	private JSONObject patientToJson(Patient patient) throws JSONException {

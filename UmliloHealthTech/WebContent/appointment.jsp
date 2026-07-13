@@ -270,6 +270,13 @@
 		color: var(--ink);
 		box-shadow: 0 6px 14px rgba(15, 35, 55, 0.08);
 	}
+	.records-toolbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
 	.history-count {
 		color: #536b83;
 		font-size: 0.84rem;
@@ -476,6 +483,13 @@
 		margin: 0 auto 0.75rem;
 		filter: drop-shadow(0 6px 12px rgba(15, 23, 42, 0.35));
 	}
+	.modal-content {
+		border: 1px solid var(--line);
+		border-radius: 14px;
+	}
+	.modal-title {
+		font-weight: 800;
+	}
 	@media (max-width: 1180px) {
 		.patients-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 		.details-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -527,9 +541,9 @@
 			<a href="appointment" class="nav-item-link active"><i class="bi bi-people"></i><span class="nav-label">Patients</span></a>
 			<a href="current-appointment" class="nav-item-link"><i class="bi bi-diagram-3"></i><span class="nav-label">Patient Flow</span></a>
 			<a href="capture-appointment" class="nav-item-link"><i class="bi bi-stethoscope"></i><span class="nav-label">Nurse Workspace</span></a>
-			<a href="current-appointment" class="nav-item-link"><i class="bi bi-activity"></i><span class="nav-label">Visits Today</span></a>
-			<a href="#" class="nav-item-link"><i class="bi bi-heart-pulse"></i><span class="nav-label">Vitals Overview</span></a>
-			<a href="#" class="nav-item-link"><i class="bi bi-arrow-left-right"></i><span class="nav-label">Referrals</span></a>
+			<a href="visits-today" class="nav-item-link"><i class="bi bi-activity"></i><span class="nav-label">Visits Today</span></a>
+			<a href="vitals-overview" class="nav-item-link"><i class="bi bi-heart-pulse"></i><span class="nav-label">Vitals Overview</span></a>
+			<a href="referrals" class="nav-item-link"><i class="bi bi-arrow-left-right"></i><span class="nav-label">Referrals</span></a>
 			<a href="screening" class="nav-item-link"><i class="bi bi-clipboard2-pulse"></i><span class="nav-label">Screening</span></a>
 			<a href="health-education" class="nav-item-link"><i class="bi bi-book"></i><span class="nav-label">Health Education</span></a>
 		</nav>
@@ -613,11 +627,16 @@
 			</section>
 
 			<section class="history-panel p-3 p-lg-4 d-none" id="historyPanel">
-				<div class="tabs-wrap" role="tablist">
-					<button class="record-tab active" type="button" data-tab="medicalHistory"><i class="bi bi-clock-history me-1"></i> Medical History <span id="medicalHistoryCount">(0)</span></button>
-					<button class="record-tab" type="button" data-tab="visits"><i class="bi bi-stethoscope me-1"></i> Visits <span id="visitsCount">(0)</span></button>
-					<button class="record-tab" type="button" data-tab="prescriptions"><i class="bi bi-capsule me-1"></i> Prescriptions <span id="prescriptionsCount">(0)</span></button>
-					<button class="record-tab" type="button" data-tab="labResults"><i class="bi bi-flask me-1"></i> Lab Results <span id="labResultsCount">(0)</span></button>
+				<div class="records-toolbar">
+					<div class="tabs-wrap" role="tablist">
+						<button class="record-tab active" type="button" data-tab="medicalHistory"><i class="bi bi-clock-history me-1"></i> Medical History <span id="medicalHistoryCount">(0)</span></button>
+						<button class="record-tab" type="button" data-tab="visits"><i class="bi bi-stethoscope me-1"></i> Visits <span id="visitsCount">(0)</span></button>
+						<button class="record-tab" type="button" data-tab="prescriptions"><i class="bi bi-capsule me-1"></i> Prescriptions <span id="prescriptionsCount">(0)</span></button>
+						<button class="record-tab" type="button" data-tab="labResults"><i class="bi bi-flask me-1"></i> Lab Results <span id="labResultsCount">(0)</span></button>
+					</div>
+					<button class="btn btn-primary btn-sm" type="button" id="openRecordModalBtn">
+						<i class="bi bi-plus-lg me-1"></i> Add Record
+					</button>
 				</div>
 				<div class="history-count" id="historySummary">0 events, most recent first</div>
 				<div class="timeline" id="historyTimeline"></div>
@@ -692,6 +711,68 @@
 		</div>
 	</div>
 
+	<div class="modal fade" id="recordModal" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-lg modal-dialog-scrollable">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="recordModalTitle">Add Record</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+					<div class="row g-3">
+						<div class="col-md-6">
+							<label class="form-label" id="recordTitleLabel" for="recordTitle">Title</label>
+							<input type="text" class="form-control" id="recordTitle" placeholder="e.g. Hypertension review">
+						</div>
+						<div class="col-md-6">
+							<label class="form-label" for="recordDate">Date</label>
+							<input type="datetime-local" class="form-control" id="recordDate">
+						</div>
+						<div class="col-md-6 d-none" id="recordStatusWrap">
+							<label class="form-label" for="recordStatus">Status</label>
+							<select class="form-select" id="recordStatus">
+								<option value="COMPLETED">Completed</option>
+								<option value="WAITING">Waiting</option>
+								<option value="IN_PROGRESS">In Progress</option>
+								<option value="PENDING_DOCTOR">Pending Doctor</option>
+							</select>
+						</div>
+						<div class="col-md-6" id="recordProviderWrap">
+							<label class="form-label" id="recordProviderLabel" for="recordProvider">Provider</label>
+							<input type="text" class="form-control" id="recordProvider" placeholder="Doctor, nurse, or lab">
+						</div>
+						<div class="col-12 d-none" id="recordPrescriptionWrap">
+							<label class="form-label" for="recordPrescription">Prescription</label>
+							<textarea class="form-control" id="recordPrescription" rows="4" placeholder="Medication, dose, frequency, and duration"></textarea>
+						</div>
+						<div class="col-md-6 d-none" id="labResultWrap">
+							<label class="form-label" for="labResultValue">Result Value</label>
+							<input type="text" class="form-control" id="labResultValue" placeholder="e.g. 6.8 mmol/L">
+						</div>
+						<div class="col-md-6 d-none" id="labStatusWrap">
+							<label class="form-label" for="labStatus">Lab Status</label>
+							<select class="form-select" id="labStatus">
+								<option>Final</option>
+								<option>Pending</option>
+								<option>Abnormal</option>
+								<option>Critical</option>
+							</select>
+						</div>
+						<div class="col-12">
+							<label class="form-label" id="recordDetailsLabel" for="recordDetails">Details</label>
+							<textarea class="form-control" id="recordDetails" rows="5" placeholder="Clinical notes, assessment, result notes, or additional details"></textarea>
+						</div>
+					</div>
+					<div id="recordAlert" class="alert alert-warning mt-3 d-none"></div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-primary" id="saveRecordBtn">Save Record</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<div class="loading-overlay" id="loadingOverlay">
 		<div class="loading-card">
 			<img src="img/uht_bg.png" alt="Umlilo HealthTech logo" class="loading-logo">
@@ -706,6 +787,7 @@
 	var currentDetail = null;
 	var activeTab = "medicalHistory";
 	var loadingCount = 0;
+	var recordModal = null;
 
 	function showLoading() {
 		loadingCount += 1;
@@ -833,20 +915,30 @@
 		rows.forEach(function (item) {
 			var title = item.summary || item.doctorSummary || item.prescription || "Clinical record";
 			var body = item.nurseNotes || item.doctorSummary || item.additionalNotes || "No detailed notes recorded.";
+			var label = "Visit";
+			var footer = "Nurse: " + (item.nurseName || "-") + " | Doctor: " + (item.doctorName || "-");
 			if (type === "prescriptions") {
 				title = item.prescription || "Prescription";
 				body = "Provider: " + (item.doctorName || item.nurseName || "Not recorded");
+				label = "Prescription";
+				footer = "Diagnosis: " + (item.doctorSummary || item.summary || "-");
+			} else if (type === "labResults") {
+				title = item.testName || "Lab result";
+				body = "Result: " + (item.resultValue || "Not recorded");
+				label = "Lab Result";
+				footer = "Status: " + (item.status || "-") + " | Ordered by: " + (item.orderedBy || "-");
+			} else if (type === "medicalHistory") {
+				label = "History";
 			}
 			var node = document.createElement("div");
 			node.className = "timeline-item";
 			node.innerHTML =
 				"<span class=\"timeline-dot\"></span>" +
-				"<div class=\"mb-1\"><span class=\"chip\">" + escapeHtml(type === "prescriptions" ? "Prescription" : "Visit") + "</span> <span class=\"muted-small\">" + escapeHtml(item.date || "-") + "</span></div>" +
+				"<div class=\"mb-1\"><span class=\"chip\">" + escapeHtml(label) + "</span> <span class=\"muted-small\">" + escapeHtml(item.date || "-") + "</span></div>" +
 				"<div class=\"event-card\">" +
 					"<div class=\"event-title\">" + escapeHtml(title) + "</div>" +
 					"<div class=\"mb-2\">" + escapeHtml(body) + "</div>" +
-					"<div class=\"muted-small\">Diagnosis: " + escapeHtml(item.doctorSummary || item.summary || "-") + "</div>" +
-					"<div class=\"muted-small\">Nurse: " + escapeHtml(item.nurseName || "-") + " | Doctor: " + escapeHtml(item.doctorName || "-") + "</div>" +
+					"<div class=\"muted-small\">" + escapeHtml(footer) + "</div>" +
 				"</div>";
 			timeline.appendChild(node);
 		});
@@ -889,6 +981,153 @@
 			.finally(hideLoading);
 	}
 
+	function currentPatientId() {
+		return currentDetail && currentDetail.patient ? currentDetail.patient.id : null;
+	}
+
+	function setDefaultRecordDate() {
+		var now = new Date();
+		now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+		document.getElementById("recordDate").value = now.toISOString().slice(0, 16);
+	}
+
+	function showRecordAlert(message, type) {
+		var alertEl = document.getElementById("recordAlert");
+		alertEl.className = "alert alert-" + (type || "warning") + " mt-3";
+		alertEl.textContent = message;
+		alertEl.classList.remove("d-none");
+	}
+
+	function clearRecordAlert() {
+		document.getElementById("recordAlert").classList.add("d-none");
+	}
+
+	function resetRecordForm() {
+		document.getElementById("recordTitle").value = "";
+		document.getElementById("recordProvider").value = "";
+		document.getElementById("recordPrescription").value = "";
+		document.getElementById("recordDetails").value = "";
+		document.getElementById("labResultValue").value = "";
+		document.getElementById("labStatus").value = "Final";
+		document.getElementById("recordStatus").value = "COMPLETED";
+		setDefaultRecordDate();
+		clearRecordAlert();
+	}
+
+	function configureRecordModal() {
+		resetRecordForm();
+		var config = {
+			medicalHistory: {
+				title: "Add Medical History",
+				titleLabel: "Condition / Event",
+				titlePlaceholder: "e.g. Hypertension diagnosed",
+				detailsLabel: "History Details",
+				detailsPlaceholder: "Relevant history, onset, notes, and clinical context",
+				providerLabel: "Recorded By"
+			},
+			visits: {
+				title: "Add Visit",
+				titleLabel: "Visit Reason",
+				titlePlaceholder: "e.g. Follow-up consultation",
+				detailsLabel: "Visit Notes",
+				detailsPlaceholder: "Symptoms, observations, assessment, and plan",
+				providerLabel: "Provider"
+			},
+			prescriptions: {
+				title: "Add Prescription",
+				titleLabel: "Indication",
+				titlePlaceholder: "e.g. Hypertension management",
+				detailsLabel: "Prescription Notes",
+				detailsPlaceholder: "Instructions, warnings, or diagnosis linked to this prescription",
+				providerLabel: "Prescriber"
+			},
+			labResults: {
+				title: "Add Lab Result",
+				titleLabel: "Test Name",
+				titlePlaceholder: "e.g. HbA1c",
+				detailsLabel: "Result Notes",
+				detailsPlaceholder: "Reference range, interpretation, or follow-up notes",
+				providerLabel: "Ordered By"
+			}
+		}[activeTab] || {};
+
+		document.getElementById("recordModalTitle").textContent = config.title || "Add Record";
+		document.getElementById("recordTitleLabel").textContent = config.titleLabel || "Title";
+		document.getElementById("recordTitle").placeholder = config.titlePlaceholder || "Record title";
+		document.getElementById("recordDetailsLabel").textContent = config.detailsLabel || "Details";
+		document.getElementById("recordDetails").placeholder = config.detailsPlaceholder || "Record details";
+		document.getElementById("recordProviderLabel").textContent = config.providerLabel || "Provider";
+		document.getElementById("recordPrescriptionWrap").classList.toggle("d-none", activeTab !== "prescriptions");
+		document.getElementById("labResultWrap").classList.toggle("d-none", activeTab !== "labResults");
+		document.getElementById("labStatusWrap").classList.toggle("d-none", activeTab !== "labResults");
+		document.getElementById("recordStatusWrap").classList.toggle("d-none", activeTab === "labResults");
+		recordModal = bootstrap.Modal.getOrCreateInstance(document.getElementById("recordModal"));
+		recordModal.show();
+	}
+
+	function savePatientRecord() {
+		var patientId = currentPatientId();
+		if (!patientId) {
+			showRecordAlert("Select a patient first.");
+			return;
+		}
+
+		var title = document.getElementById("recordTitle").value.trim();
+		var details = document.getElementById("recordDetails").value.trim();
+		var dateValue = document.getElementById("recordDate").value;
+		var provider = document.getElementById("recordProvider").value.trim();
+		var endpoint = "rest/patients/add-record";
+		var payload = {
+			patientId: patientId,
+			date: dateValue,
+			title: title,
+			details: details,
+			provider: provider,
+			status: document.getElementById("recordStatus").value
+		};
+
+		if (activeTab === "labResults") {
+			endpoint = "rest/patients/add-lab-result";
+			payload.testName = title;
+			payload.resultValue = document.getElementById("labResultValue").value.trim();
+			payload.status = document.getElementById("labStatus").value;
+			payload.orderedBy = provider;
+			payload.notes = details;
+		} else {
+			payload.recordType = activeTab === "medicalHistory" ? "medicalHistory" : activeTab === "prescriptions" ? "prescription" : "visit";
+			payload.prescription = document.getElementById("recordPrescription").value.trim();
+		}
+
+		if (!title && activeTab !== "prescriptions") {
+			showRecordAlert("A title or test name is required.");
+			return;
+		}
+		if (activeTab === "prescriptions" && !payload.prescription) {
+			showRecordAlert("Prescription details are required.");
+			return;
+		}
+
+		showLoading();
+		fetch(endpoint, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(payload)
+		})
+		.then(function (response) { return response.json().then(function (data) { return { status: response.status, data: data }; }); })
+		.then(function (result) {
+			if (result.status === 200 && result.data.success) {
+				if (recordModal) recordModal.hide();
+				loadPatientDetail(patientId);
+			} else {
+				showRecordAlert((result.data && result.data.message) || "Unable to save record.");
+			}
+		})
+		.catch(function () {
+			showRecordAlert("Unable to reach server.");
+		})
+		.finally(hideLoading);
+	}
+
 	document.getElementById("sidebarToggle").addEventListener("click", function () {
 		if (window.matchMedia("(max-width: 880px)").matches) {
 			document.body.classList.toggle("sidebar-open");
@@ -913,6 +1152,8 @@
 			refreshTabs();
 		});
 	});
+	document.getElementById("openRecordModalBtn").addEventListener("click", configureRecordModal);
+	document.getElementById("saveRecordBtn").addEventListener("click", savePatientRecord);
 
 	document.getElementById("savePatientBtn").addEventListener("click", function () {
 		var payload = {

@@ -47,6 +47,27 @@ public class AppointmentDAO {
 		}
 	}
 
+	public boolean createPatientRecord(Long patientId, java.sql.Timestamp appointmentTime, String status,
+			String nurseName, String doctorName, String visitSummary, String nurseNotes, String prescription,
+			String doctorSummary, String additionalNotes) throws SQLException {
+		String sql = "INSERT INTO appointments (patient_id, appointment_time, status, nurse_name, doctor_name, " +
+				"visit_summary, nurse_notes, prescription, doctor_summary, additional_notes) VALUES (?,?,?,?,?,?,?,?,?,?)";
+		try (Connection conn = DBUtil.getConnection();
+				PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setLong(1, patientId);
+			ps.setTimestamp(2, appointmentTime);
+			ps.setString(3, status);
+			ps.setString(4, nurseName);
+			ps.setString(5, doctorName);
+			ps.setString(6, visitSummary);
+			ps.setString(7, nurseNotes);
+			ps.setString(8, prescription);
+			ps.setString(9, doctorSummary);
+			ps.setString(10, additionalNotes);
+			return ps.executeUpdate() > 0;
+		}
+	}
+
 	public Appointment findAppointmentWithPatient(Long appointmentId) throws SQLException {
 		String sql = "SELECT a.id, a.patient_id, a.appointment_time, a.status, a.nurse_name, a.doctor_name, a.visit_summary, " +
 				"a.nurse_notes, a.prescription, a.doctor_summary, a.additional_notes, " +
@@ -190,6 +211,7 @@ public class AppointmentDAO {
 	public List<Appointment> findAppointmentsForNurseOnDate(String nurseName, Date date) throws SQLException {
 		List<Appointment> results = new ArrayList<>();
 		String sql = "SELECT a.id, a.patient_id, a.appointment_time, a.status, a.nurse_name, a.doctor_name, a.visit_summary, " +
+				"a.nurse_notes, a.prescription, a.doctor_summary, a.additional_notes, " +
 				"p.first_name, p.surname, p.id_number " +
 				"FROM appointments a " +
 				"JOIN patients p ON p.id = a.patient_id " +
@@ -209,6 +231,10 @@ public class AppointmentDAO {
 					appointment.setNurseName(rs.getString("nurse_name"));
 					appointment.setDoctorName(rs.getString("doctor_name"));
 					appointment.setVisitSummary(rs.getString("visit_summary"));
+					appointment.setNurseNotes(rs.getString("nurse_notes"));
+					appointment.setPrescription(rs.getString("prescription"));
+					appointment.setDoctorSummary(rs.getString("doctor_summary"));
+					appointment.setAdditionalNotes(rs.getString("additional_notes"));
 					appointment.setPatientName(rs.getString("first_name") + " " + rs.getString("surname"));
 					appointment.setPatientIdNumber(rs.getString("id_number"));
 					results.add(appointment);

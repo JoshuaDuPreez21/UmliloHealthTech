@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta charset="ISO-8859-1">
-<title>Umlilo HealthTech | Patient Flow</title>
+<title>Umlilo HealthTech | Visit Records</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -19,6 +19,7 @@
 		--brand: #0879ad;
 		--teal: #10bfa6;
 		--orange: #f59e0b;
+		--blue: #2563eb;
 		--sidebar: #0d1b27;
 		--sidebar-soft: #172a3d;
 	}
@@ -74,7 +75,7 @@
 	}
 	.main-content {
 		padding: 1.55rem 2.15rem 3rem;
-		max-width: 1240px;
+		max-width: 1110px;
 	}
 	.page-title {
 		font-size: clamp(1.65rem, 1.35rem + 1vw, 2rem);
@@ -86,135 +87,136 @@
 		font-weight: 700;
 		margin: 0;
 	}
-	.flow-summary {
-		display: grid;
-		grid-template-columns: repeat(4, minmax(0, 1fr));
+	.filters {
+		display: flex;
+		align-items: center;
 		gap: 0.9rem;
-		margin: 1.7rem 0;
+		margin: 2rem 0 1.85rem;
 	}
-	.summary-tile {
+	.filter-icon {
+		color: #60758b;
+		font-size: 1.25rem;
+	}
+	.form-select {
+		width: 200px;
+		min-height: 45px;
+		border: 1px solid var(--line);
+		border-radius: 10px;
+		box-shadow: 0 3px 10px rgba(15, 35, 55, 0.05);
+		font-weight: 600;
+	}
+	.visit-list {
+		display: grid;
+		gap: 1rem;
+	}
+	.visit-card {
 		background: var(--panel);
 		border: 1px solid var(--line);
-		border-radius: 8px;
-		padding: 1rem;
-		box-shadow: 0 2px 6px rgba(15, 35, 55, 0.09);
-	}
-	.summary-label {
-		color: var(--muted);
-		font-size: 0.78rem;
-		font-weight: 800;
-		text-transform: uppercase;
-	}
-	.summary-value {
-		font-size: 1.7rem;
-		font-weight: 800;
-		margin-top: 0.25rem;
-	}
-	.flow-board {
+		border-radius: 14px;
+		box-shadow: 0 2px 6px rgba(15, 35, 55, 0.12);
+		padding: 1.35rem 1.35rem 1.25rem;
 		display: grid;
-		grid-template-columns: repeat(4, minmax(230px, 1fr));
+		grid-template-columns: auto minmax(0, 1fr) auto;
 		gap: 1rem;
 		align-items: start;
 	}
-	.flow-column {
-		background: #edf3f7;
-		border: 1px solid var(--line);
-		border-radius: 8px;
-		min-height: 430px;
-		padding: 0.9rem;
-	}
-	.column-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 0.75rem;
-		margin-bottom: 0.8rem;
-	}
-	.column-title {
-		display: flex;
-		align-items: center;
-		gap: 0.45rem;
-		font-weight: 800;
-	}
-	.column-count {
-		border-radius: 999px;
-		background: #fff;
-		border: 1px solid var(--line);
-		padding: 0.2rem 0.55rem;
-		font-size: 0.78rem;
-		font-weight: 800;
-	}
-	.flow-list {
-		display: grid;
-		gap: 0.75rem;
-	}
-	.flow-card {
-		background: #fff;
-		border: 1px solid var(--line);
-		border-radius: 8px;
-		box-shadow: 0 2px 6px rgba(15, 35, 55, 0.09);
-		padding: 0.95rem;
-	}
-	.flow-card-top {
-		display: flex;
-		align-items: flex-start;
-		justify-content: space-between;
-		gap: 0.75rem;
-		margin-bottom: 0.5rem;
-	}
-	.patient-name {
-		font-weight: 800;
-		line-height: 1.25;
-	}
-	.visit-time {
-		color: #526985;
-		font-size: 0.78rem;
-		white-space: nowrap;
+	.visit-icon {
+		width: 46px;
+		height: 46px;
+		border-radius: 12px;
+		background: #e7f3f9;
+		color: var(--brand);
 		display: inline-flex;
 		align-items: center;
-		gap: 0.3rem;
+		justify-content: center;
+		font-size: 1.25rem;
+		flex: 0 0 auto;
 	}
-	.complaint {
-		color: #5f7186;
-		font-size: 0.86rem;
-		margin-bottom: 0.7rem;
-	}
-	.chip-row {
+	.patient-line {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.4rem;
-		margin-bottom: 0.75rem;
-	}
-	.chip {
-		display: inline-flex;
 		align-items: center;
-		border: 1px solid var(--line);
-		background: #f8fbfd;
-		border-radius: 7px;
-		padding: 0.22rem 0.55rem;
-		font-size: 0.72rem;
+		gap: 0.55rem;
+		margin-bottom: 0.2rem;
+	}
+	.patient-name {
+		font-size: 1.02rem;
 		font-weight: 800;
-		color: #061427;
 	}
 	.assess-link {
 		border: 0;
 		border-radius: 5px;
 		background: #dff0fa;
 		color: #0879ad;
-		font-size: 0.74rem;
+		font-size: 0.72rem;
 		font-weight: 800;
 		text-decoration: none;
-		padding: 0.38rem 0.55rem;
+		padding: 0.28rem 0.5rem;
 		display: inline-flex;
 		align-items: center;
-		gap: 0.3rem;
+		gap: 0.25rem;
+	}
+	.complaint {
+		color: #5f7186;
+		font-size: 0.9rem;
+		margin-bottom: 0.65rem;
+	}
+	.chip-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.45rem;
+		margin-bottom: 0.65rem;
+	}
+	.chip {
+		display: inline-flex;
+		align-items: center;
+		border: 1px solid var(--line);
+		background: #fff;
+		border-radius: 8px;
+		padding: 0.25rem 0.7rem;
+		font-size: 0.75rem;
+		font-weight: 800;
+		color: #061427;
+		line-height: 1.2;
+	}
+	.diagnosis {
+		color: #526985;
+		font-size: 0.88rem;
+	}
+	.visit-side {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 0.65rem;
+		padding-top: 0.15rem;
+		min-width: 150px;
+	}
+	.status-pill {
+		border: 0;
+		border-radius: 10px;
+		font-size: 0.76rem;
+		font-weight: 800;
+		padding: 0.45rem 0.8rem;
+		box-shadow: 0 5px 12px rgba(15, 35, 55, 0.08);
+	}
+	.status-waiting { background: #f8fafc; color: #111827; }
+	.status-triage { background: #fff7ed; color: #c2410c; }
+	.status-consultation { background: #eef4ff; color: #1d4ed8; }
+	.status-completed { background: #ecfdf5; color: #047857; }
+	.visit-time {
+		color: #526985;
+		font-size: 0.78rem;
+		white-space: nowrap;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
 	}
 	.empty-state {
 		background: #fff;
 		border: 1px dashed var(--line);
-		border-radius: 8px;
+		border-radius: 14px;
 		color: var(--muted);
-		padding: 1rem;
+		padding: 1.4rem;
 		font-weight: 700;
 	}
 	.sidebar {
@@ -365,10 +367,6 @@
 		padding-left: 0.85rem;
 		padding-right: 0.85rem;
 	}
-	@media (max-width: 1180px) {
-		.flow-board { grid-template-columns: repeat(2, minmax(230px, 1fr)); }
-		.flow-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-	}
 	@media (max-width: 880px) {
 		.app-shell,
 		body.sidebar-collapsed .app-shell { padding-right: 0; }
@@ -389,9 +387,21 @@
 			padding: 0 1rem;
 		}
 		.main-content { padding: 1.4rem 1rem 2rem; }
-		.flow-board,
-		.flow-summary { grid-template-columns: 1fr; }
-		.flow-column { min-height: 0; }
+		.filters {
+			align-items: stretch;
+			flex-direction: column;
+			margin: 1.45rem 0;
+		}
+		.form-select { width: 100%; }
+		.visit-card {
+			grid-template-columns: auto minmax(0, 1fr);
+		}
+		.visit-side {
+			grid-column: 1 / -1;
+			align-items: flex-start;
+			min-width: 0;
+			padding-left: 62px;
+		}
 	}
 </style>
 </head>
@@ -410,9 +420,9 @@
 		<nav class="nav-menu">
 			<a href="home" class="nav-item-link"><i class="bi bi-grid"></i><span class="nav-label">Dashboard</span></a>
 			<a href="appointment" class="nav-item-link"><i class="bi bi-people"></i><span class="nav-label">Patients</span></a>
-			<a href="current-appointment" class="nav-item-link active"><i class="bi bi-diagram-3"></i><span class="nav-label">Patient Flow</span></a>
+			<a href="current-appointment" class="nav-item-link"><i class="bi bi-diagram-3"></i><span class="nav-label">Patient Flow</span></a>
 			<a href="capture-appointment" class="nav-item-link"><i class="bi bi-stethoscope"></i><span class="nav-label">Nurse Workspace</span></a>
-			<a href="visits-today" class="nav-item-link"><i class="bi bi-activity"></i><span class="nav-label">Visits Today</span></a>
+			<a href="visits-today" class="nav-item-link active"><i class="bi bi-activity"></i><span class="nav-label">Visits Today</span></a>
 			<a href="vitals-overview" class="nav-item-link"><i class="bi bi-heart-pulse"></i><span class="nav-label">Vitals Overview</span></a>
 			<a href="referrals" class="nav-item-link"><i class="bi bi-arrow-left-right"></i><span class="nav-label">Referrals</span></a>
 			<a href="screening" class="nav-item-link"><i class="bi bi-clipboard2-pulse"></i><span class="nav-label">Screening</span></a>
@@ -436,33 +446,21 @@
 		</header>
 
 		<main class="main-content">
-			<h1 class="page-title">Patient Flow</h1>
-			<p class="page-subtitle"><span id="flowCount">0</span> patients moving through today's care path</p>
+			<h1 class="page-title">Visit Records</h1>
+			<p class="page-subtitle"><span id="visitCount">0</span> total visits</p>
 
-			<section class="flow-summary" aria-label="Flow summary">
-				<div class="summary-tile"><div class="summary-label">Waiting</div><div class="summary-value" id="waitingCount">0</div></div>
-				<div class="summary-tile"><div class="summary-label">Triage</div><div class="summary-value" id="triageCount">0</div></div>
-				<div class="summary-tile"><div class="summary-label">Consultation</div><div class="summary-value" id="consultationCount">0</div></div>
-				<div class="summary-tile"><div class="summary-label">Completed</div><div class="summary-value" id="completedCount">0</div></div>
+			<section class="filters" aria-label="Visit filters">
+				<i class="bi bi-funnel filter-icon" aria-hidden="true"></i>
+				<select class="form-select" id="statusFilter" aria-label="Filter by status">
+					<option value="">All Statuses</option>
+				</select>
+				<select class="form-select" id="departmentFilter" aria-label="Filter by department">
+					<option value="">All Departments</option>
+				</select>
 			</section>
 
-			<section class="flow-board" aria-label="Patient flow board">
-				<div class="flow-column" data-column="waiting">
-					<div class="column-header"><div class="column-title"><i class="bi bi-hourglass-split"></i> Waiting</div><span class="column-count" id="waitingBadge">0</span></div>
-					<div class="flow-list" id="waitingList"><div class="empty-state">Loading patients...</div></div>
-				</div>
-				<div class="flow-column" data-column="triage">
-					<div class="column-header"><div class="column-title"><i class="bi bi-clipboard2-pulse"></i> Triage</div><span class="column-count" id="triageBadge">0</span></div>
-					<div class="flow-list" id="triageList"><div class="empty-state">Loading patients...</div></div>
-				</div>
-				<div class="flow-column" data-column="consultation">
-					<div class="column-header"><div class="column-title"><i class="bi bi-person-vcard"></i> Consultation</div><span class="column-count" id="consultationBadge">0</span></div>
-					<div class="flow-list" id="consultationList"><div class="empty-state">Loading patients...</div></div>
-				</div>
-				<div class="flow-column" data-column="completed">
-					<div class="column-header"><div class="column-title"><i class="bi bi-check2-circle"></i> Completed</div><span class="column-count" id="completedBadge">0</span></div>
-					<div class="flow-list" id="completedList"><div class="empty-state">Loading patients...</div></div>
-				</div>
+			<section class="visit-list" id="visitList" aria-live="polite">
+				<div class="empty-state">Loading visit records...</div>
 			</section>
 		</main>
 	</div>
@@ -470,12 +468,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="js/session-timeout.js"></script>
 <script>
-	var columns = {
-		waiting: [],
-		triage: [],
-		consultation: [],
-		completed: []
-	};
+	var allVisits = [];
 
 	function escapeHtml(value) {
 		return String(value == null ? "" : value)
@@ -484,6 +477,13 @@
 			.replace(/>/g, "&gt;")
 			.replace(/"/g, "&quot;")
 			.replace(/'/g, "&#039;");
+	}
+
+	function titleCase(value) {
+		return String(value || "")
+			.replace(/_/g, " ")
+			.toLowerCase()
+			.replace(/\b\w/g, function (letter) { return letter.toUpperCase(); });
 	}
 
 	function getSummaryField(summary, label) {
@@ -502,61 +502,109 @@
 		return "";
 	}
 
-	function stageForStatus(status) {
-		var normalized = String(status || "").replace(/_/g, " ").trim().toLowerCase();
-		if (normalized.indexOf("complete") >= 0 || normalized.indexOf("done") >= 0 || normalized.indexOf("signed") >= 0) return "completed";
-		if (normalized.indexOf("consult") >= 0 || normalized.indexOf("doctor") >= 0 || normalized.indexOf("progress") >= 0) return "consultation";
-		if (normalized.indexOf("triage") >= 0 || normalized.indexOf("pending") >= 0 || normalized.indexOf("nurse") >= 0) return "triage";
-		return "waiting";
+	function cleanSummary(summary) {
+		if (!summary) return "";
+		if (getSummaryField(summary, "Visit Type") || getSummaryField(summary, "Chief Complaint")) return "";
+		return String(summary).trim();
 	}
 
 	function normalizeVisit(item) {
 		var summary = item.visitSummary || "";
+		var details = getSummaryField(summary, "Additional Details");
 		return {
 			id: item.id,
 			patientName: item.patientName || "Unnamed Patient",
 			dateTime: item.dateTime || "-",
+			status: statusText(item.status || "WAITING"),
 			visitType: firstValue([item.visitType, getSummaryField(summary, "Visit Type"), "Walk-in"]),
 			department: firstValue([item.department, getSummaryField(summary, "Department"), "General"]),
 			provider: firstValue([item.attendingProvider, getSummaryField(summary, "Attending Provider"), item.doctorName, item.nurseName, "Provider not assigned"]),
-			complaint: firstValue([item.chiefComplaint, getSummaryField(summary, "Chief Complaint"), item.nurseNotes, "Clinical visit"]),
-			stage: stageForStatus(item.status)
+			complaint: firstValue([item.chiefComplaint, getSummaryField(summary, "Chief Complaint"), item.nurseNotes, cleanSummary(summary), "Clinical visit"]),
+			diagnosis: firstValue([item.diagnosis, item.doctorSummary, item.additionalNotes, details, cleanSummary(summary), "Assessment pending"]),
+			prescription: item.prescription || ""
 		};
 	}
 
-	function setColumnMessage(column, message) {
-		document.getElementById(column + "List").innerHTML = "<div class=\"empty-state\">" + escapeHtml(message) + "</div>";
+	function statusClass(status) {
+		var normalized = String(status || "").toLowerCase();
+		if (normalized.indexOf("consult") >= 0 || normalized.indexOf("progress") >= 0) return "status-consultation";
+		if (normalized.indexOf("triage") >= 0 || normalized.indexOf("pending") >= 0) return "status-triage";
+		if (normalized.indexOf("complete") >= 0) return "status-completed";
+		return "status-waiting";
 	}
 
-	function renderCard(visit) {
-		return "<article class=\"flow-card\">" +
-			"<div class=\"flow-card-top\">" +
-				"<div class=\"patient-name\">" + escapeHtml(visit.patientName) + "</div>" +
-				"<span class=\"visit-time\"><i class=\"bi bi-clock\"></i>" + escapeHtml(visit.dateTime) + "</span>" +
-			"</div>" +
-			"<div class=\"complaint\">" + escapeHtml(visit.complaint) + "</div>" +
-			"<div class=\"chip-row\">" +
-				"<span class=\"chip\">" + escapeHtml(visit.visitType) + "</span>" +
-				"<span class=\"chip\">" + escapeHtml(visit.department) + "</span>" +
-				"<span class=\"chip\">" + escapeHtml(visit.provider) + "</span>" +
-			"</div>" +
-			"<a class=\"assess-link\" href=\"capture-appointment?appointmentId=" + encodeURIComponent(visit.id) + "\"><i class=\"bi bi-stethoscope\"></i> Open Visit</a>" +
-		"</article>";
+	function statusText(status) {
+		var normalized = String(status || "").replace(/_/g, " ").trim().toLowerCase();
+		if (!normalized || normalized === "new" || normalized === "waiting") return "Waiting";
+		if (normalized === "pending" || normalized === "pending doctor" || normalized === "triage") return "Triage";
+		if (normalized === "in progress" || normalized === "in consultation") return "In Consultation";
+		if (normalized === "completed" || normalized === "complete") return "Completed";
+		return titleCase(normalized);
 	}
 
-	function renderFlow() {
-		var total = 0;
-		Object.keys(columns).forEach(function (column) {
-			total += columns[column].length;
-			document.getElementById(column + "Count").textContent = columns[column].length;
-			document.getElementById(column + "Badge").textContent = columns[column].length;
-			if (!columns[column].length) {
-				setColumnMessage(column, "No patients in this stage.");
-				return;
-			}
-			document.getElementById(column + "List").innerHTML = columns[column].map(renderCard).join("");
+	function setVisitMessage(message) {
+		document.getElementById("visitList").innerHTML = "<div class=\"empty-state\">" + escapeHtml(message) + "</div>";
+	}
+
+	function updateFilterOptions(visits) {
+		var statusFilter = document.getElementById("statusFilter");
+		var departmentFilter = document.getElementById("departmentFilter");
+		var currentStatus = statusFilter.value;
+		var currentDepartment = departmentFilter.value;
+		var statuses = Array.from(new Set(visits.map(function (visit) { return visit.status; }))).sort();
+		var departments = Array.from(new Set(visits.map(function (visit) { return visit.department; }))).sort();
+
+		statusFilter.innerHTML = "<option value=\"\">All Statuses</option>" + statuses.map(function (status) {
+			return "<option value=\"" + escapeHtml(status) + "\">" + escapeHtml(status) + "</option>";
+		}).join("");
+		departmentFilter.innerHTML = "<option value=\"\">All Departments</option>" + departments.map(function (department) {
+			return "<option value=\"" + escapeHtml(department) + "\">" + escapeHtml(department) + "</option>";
+		}).join("");
+		statusFilter.value = statuses.indexOf(currentStatus) >= 0 ? currentStatus : "";
+		departmentFilter.value = departments.indexOf(currentDepartment) >= 0 ? currentDepartment : "";
+	}
+
+	function renderVisits() {
+		var list = document.getElementById("visitList");
+		var statusValue = document.getElementById("statusFilter").value;
+		var departmentValue = document.getElementById("departmentFilter").value;
+		var filtered = allVisits.filter(function (visit) {
+			return (!statusValue || visit.status === statusValue) &&
+				(!departmentValue || visit.department === departmentValue);
 		});
-		document.getElementById("flowCount").textContent = total;
+
+		document.getElementById("visitCount").textContent = allVisits.length;
+		list.innerHTML = "";
+		if (!filtered.length) {
+			setVisitMessage(allVisits.length ? "No visit records match the selected filters." : "No visits scheduled for today.");
+			return;
+		}
+
+		filtered.forEach(function (visit) {
+			var status = visit.status;
+			var card = document.createElement("article");
+			card.className = "visit-card";
+			card.innerHTML =
+				"<div class=\"visit-icon\"><i class=\"bi bi-activity\"></i></div>" +
+				"<div>" +
+					"<div class=\"patient-line\">" +
+						"<div class=\"patient-name\">" + escapeHtml(visit.patientName) + "</div>" +
+						"<a class=\"assess-link\" href=\"capture-appointment?appointmentId=" + encodeURIComponent(visit.id) + "\"><i class=\"bi bi-stethoscope\"></i> Assess</a>" +
+					"</div>" +
+					"<div class=\"complaint\">" + escapeHtml(visit.complaint) + "</div>" +
+					"<div class=\"chip-row\">" +
+						"<span class=\"chip\">" + escapeHtml(visit.visitType) + "</span>" +
+						"<span class=\"chip\">" + escapeHtml(visit.department) + "</span>" +
+						"<span class=\"chip\">" + escapeHtml(visit.provider) + "</span>" +
+					"</div>" +
+					"<div class=\"diagnosis\">Dx: " + escapeHtml(visit.diagnosis) + "</div>" +
+				"</div>" +
+				"<div class=\"visit-side\">" +
+					"<span class=\"status-pill " + statusClass(status) + "\">" + escapeHtml(status) + "</span>" +
+					"<span class=\"visit-time\"><i class=\"bi bi-clock\"></i>" + escapeHtml(visit.dateTime) + "</span>" +
+				"</div>";
+			list.appendChild(card);
+		});
 	}
 
 	document.getElementById("sidebarToggle").addEventListener("click", function () {
@@ -567,30 +615,31 @@
 		}
 	});
 
+	document.getElementById("statusFilter").addEventListener("change", renderVisits);
+	document.getElementById("departmentFilter").addEventListener("change", renderVisits);
+
+	setVisitMessage("Loading visit records...");
 	fetch("rest/appointments/today")
 		.then(function (response) {
 			return response.json().then(function (data) { return { status: response.status, data: data }; });
 		})
 		.then(function (result) {
 			if (result.status === 200 && result.data.success) {
-				(result.data.appointments || []).map(normalizeVisit).forEach(function (visit) {
-					columns[visit.stage].push(visit);
-				});
-				renderFlow();
+				allVisits = (result.data.appointments || []).map(normalizeVisit);
+				updateFilterOptions(allVisits);
+				renderVisits();
 			} else {
-				Object.keys(columns).forEach(function (column) {
-					columns[column] = [];
-					setColumnMessage(column, result.data.message || "Unable to load patient flow.");
-				});
-				renderFlow();
+				allVisits = [];
+				document.getElementById("visitCount").textContent = "0";
+				updateFilterOptions(allVisits);
+				setVisitMessage(result.data.message || "Unable to load visit records.");
 			}
 		})
 		.catch(function () {
-			Object.keys(columns).forEach(function (column) {
-				columns[column] = [];
-				setColumnMessage(column, "Unable to load patient flow. Please refresh and try again.");
-			});
-			renderFlow();
+			allVisits = [];
+			document.getElementById("visitCount").textContent = "0";
+			updateFilterOptions(allVisits);
+			setVisitMessage("Unable to load visit records. Please refresh and try again.");
 		});
 </script>
 </body>

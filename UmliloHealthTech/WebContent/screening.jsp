@@ -459,9 +459,9 @@
 			<a href="appointment" class="nav-item-link"><i class="bi bi-people"></i><span class="nav-label">Patients</span></a>
 			<a href="current-appointment" class="nav-item-link"><i class="bi bi-diagram-3"></i><span class="nav-label">Patient Flow</span></a>
 			<a href="capture-appointment" class="nav-item-link"><i class="bi bi-stethoscope"></i><span class="nav-label">Nurse Workspace</span></a>
-			<a href="current-appointment" class="nav-item-link"><i class="bi bi-activity"></i><span class="nav-label">Visits Today</span></a>
-			<a href="#" class="nav-item-link"><i class="bi bi-heart-pulse"></i><span class="nav-label">Vitals Overview</span></a>
-			<a href="#" class="nav-item-link"><i class="bi bi-arrow-left-right"></i><span class="nav-label">Referrals</span></a>
+			<a href="visits-today" class="nav-item-link"><i class="bi bi-activity"></i><span class="nav-label">Visits Today</span></a>
+			<a href="vitals-overview" class="nav-item-link"><i class="bi bi-heart-pulse"></i><span class="nav-label">Vitals Overview</span></a>
+			<a href="referrals" class="nav-item-link"><i class="bi bi-arrow-left-right"></i><span class="nav-label">Referrals</span></a>
 			<a href="screening" class="nav-item-link active"><i class="bi bi-clipboard2-pulse"></i><span class="nav-label">Screening</span></a>
 			<a href="health-education" class="nav-item-link"><i class="bi bi-book"></i><span class="nav-label">Health Education</span></a>
 		</nav>
@@ -606,7 +606,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="js/session-timeout.js"></script>
 <script>
-	var storageKey = "uhtScreenings";
 	var screenings = [];
 	var activeType = "";
 
@@ -625,24 +624,17 @@
 		return now.toISOString().slice(0, 10);
 	}
 
-	function loadScreenings() {
-		try {
-			screenings = JSON.parse(localStorage.getItem(storageKey) || "[]");
-		} catch (error) {
-			screenings = [];
-		}
-	}
-
-	function saveScreenings() {
-		localStorage.setItem(storageKey, JSON.stringify(screenings));
-	}
-
 	function resultClass(result) {
 		var normalized = String(result || "").toLowerCase();
 		if (normalized === "positive") return "result-positive";
 		if (normalized === "negative") return "result-negative";
 		if (normalized === "referred") return "result-referred";
 		return "";
+	}
+
+	function setLoadingState(message) {
+		document.getElementById("screeningList").innerHTML =
+			"<div class=\"empty-state\"><i class=\"bi bi-clipboard2-pulse\"></i>" + escapeHtml(message) + "</div>";
 	}
 
 	function updateMetrics() {
@@ -686,6 +678,26 @@
 		});
 	}
 
+	function fetchScreenings() {
+		setLoadingState("Loading screenings...");
+		fetch("rest/screenings/list")
+			.then(function (response) {
+				return response.json().then(function (data) { return { status: response.status, data: data }; });
+			})
+			.then(function (result) {
+				if (result.status === 200 && result.data.success) {
+					screenings = result.data.screenings || [];
+				} else {
+					screenings = [];
+				}
+				renderScreenings();
+			})
+			.catch(function () {
+				screenings = [];
+				renderScreenings();
+			});
+	}
+
 	function showAlert(message) {
 		var alertEl = document.getElementById("screeningAlert");
 		alertEl.textContent = message;
@@ -716,7 +728,7 @@
 				var patients = data.patients || [];
 				select.innerHTML = "<option value=\"\">Select patient</option>" + patients.map(function (patient) {
 					var name = patient.fullName || patient.idNumber || "Unnamed patient";
-					return "<option value=\"" + escapeHtml(name) + "\">" + escapeHtml(name) + "</option>";
+					return "<option value=\"" + escapeHtml(patient.id) + "\">" + escapeHtml(name) + "</option>";
 				}).join("");
 			})
 			.catch(function () {
@@ -744,15 +756,17 @@
 
 	document.getElementById("saveScreeningBtn").addEventListener("click", function () {
 		clearAlert();
-		var patientName = document.getElementById("patientSelect").value;
+		var patientId = document.getElementById("patientSelect").value;
 		var formType = document.getElementById("formType").value;
-		if (!patientName || !formType) {
+		if (!patientId || !formType) {
 			showAlert("Patient and form type are required.");
 			return;
 		}
-		screenings.unshift({
-			id: Date.now(),
-			patientName: patientName,
+		fetch("rest/screenings/save", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+			patientId: Number(patientId),
 			formType: formType,
 			date: document.getElementById("screeningDate").value || todayValue(),
 			result: document.getElementById("screeningResult").value,
@@ -760,11 +774,23 @@
 			actionTaken: document.getElementById("actionTaken").value.trim(),
 			followupRequired: document.getElementById("followupRequired").checked,
 			notes: document.getElementById("screeningNotes").value.trim()
+			})
+		})
+		.then(function (response) {
+			return response.json().then(function (data) { return { status: response.status, data: data }; });
+		})
+		.then(function (result) {
+			if (result.status === 200 && result.data.success) {
+				bootstrap.Modal.getOrCreateInstance(document.getElementById("screeningModal")).hide();
+				resetForm();
+				fetchScreenings();
+			} else {
+				showAlert((result.data && result.data.message) || "Unable to save screening.");
+			}
+		})
+		.catch(function () {
+			showAlert("Unable to reach server.");
 		});
-		saveScreenings();
-		renderScreenings();
-		bootstrap.Modal.getOrCreateInstance(document.getElementById("screeningModal")).hide();
-		resetForm();
 	});
 
 	document.getElementById("screeningModal").addEventListener("show.bs.modal", function () {
@@ -774,9 +800,8 @@
 		}
 	});
 
-	loadScreenings();
 	document.getElementById("screeningDate").value = todayValue();
-	renderScreenings();
+	fetchScreenings();
 </script>
 </body>
 </html>

@@ -59,3 +59,53 @@ CREATE TABLE IF NOT EXISTS appointment_attachments (
 	INDEX idx_appt_attach (appointment_id),
 	CONSTRAINT fk_attachment_appointment FOREIGN KEY (appointment_id) REFERENCES appointments(id)
 );
+
+CREATE TABLE IF NOT EXISTS patient_lab_results (
+	id BIGINT PRIMARY KEY AUTO_INCREMENT,
+	patient_id BIGINT NOT NULL,
+	result_date DATETIME NOT NULL,
+	test_name VARCHAR(160) NOT NULL,
+	result_value VARCHAR(255),
+	status VARCHAR(40),
+	ordered_by VARCHAR(120),
+	notes TEXT,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	INDEX idx_lab_patient (patient_id),
+	CONSTRAINT fk_lab_patient FOREIGN KEY (patient_id) REFERENCES patients(id)
+);
+
+CREATE TABLE IF NOT EXISTS patient_screenings (
+	id BIGINT PRIMARY KEY AUTO_INCREMENT,
+	patient_id BIGINT NOT NULL,
+	form_type VARCHAR(120) NOT NULL,
+	screening_date DATE NOT NULL,
+	result VARCHAR(40),
+	screened_by VARCHAR(120),
+	action_taken VARCHAR(255),
+	followup_required TINYINT(1) NOT NULL DEFAULT 0,
+	notes TEXT,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	INDEX idx_screening_patient (patient_id),
+	INDEX idx_screening_type (form_type),
+	CONSTRAINT fk_screening_patient FOREIGN KEY (patient_id) REFERENCES patients(id)
+);
+
+CREATE TABLE IF NOT EXISTS health_education_content (
+	id BIGINT PRIMARY KEY AUTO_INCREMENT,
+	title VARCHAR(180) NOT NULL,
+	category VARCHAR(80) NOT NULL,
+	content_type VARCHAR(40) NOT NULL,
+	language VARCHAR(40),
+	target_audience VARCHAR(80),
+	tags VARCHAR(255),
+	summary TEXT,
+	full_content TEXT,
+	original_file_name VARCHAR(255),
+	stored_file_name VARCHAR(255),
+	content_type_file VARCHAR(120),
+	file_size BIGINT,
+	created_by VARCHAR(120),
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	INDEX idx_health_category (category),
+	INDEX idx_health_title (title)
+);

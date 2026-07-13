@@ -519,9 +519,9 @@
 			<a href="appointment" class="nav-item-link"><i class="bi bi-people"></i><span class="nav-label">Patients</span></a>
 			<a href="current-appointment" class="nav-item-link"><i class="bi bi-diagram-3"></i><span class="nav-label">Patient Flow</span></a>
 			<a href="capture-appointment" class="nav-item-link"><i class="bi bi-stethoscope"></i><span class="nav-label">Nurse Workspace</span></a>
-			<a href="current-appointment" class="nav-item-link"><i class="bi bi-activity"></i><span class="nav-label">Visits Today</span></a>
-			<a href="#" class="nav-item-link"><i class="bi bi-heart-pulse"></i><span class="nav-label">Vitals Overview</span></a>
-			<a href="#" class="nav-item-link"><i class="bi bi-arrow-left-right"></i><span class="nav-label">Referrals</span></a>
+			<a href="visits-today" class="nav-item-link"><i class="bi bi-activity"></i><span class="nav-label">Visits Today</span></a>
+			<a href="vitals-overview" class="nav-item-link"><i class="bi bi-heart-pulse"></i><span class="nav-label">Vitals Overview</span></a>
+			<a href="referrals" class="nav-item-link"><i class="bi bi-arrow-left-right"></i><span class="nav-label">Referrals</span></a>
 			<a href="screening" class="nav-item-link"><i class="bi bi-clipboard2-pulse"></i><span class="nav-label">Screening</span></a>
 			<a href="health-education" class="nav-item-link"><i class="bi bi-book"></i><span class="nav-label">Health Education</span></a>
 		</nav>
@@ -630,7 +630,7 @@
 								<span class="action-copy">Check pending reports</span>
 							</span>
 						</a>
-						<a href="current-appointment" class="action-card">
+						<a href="visits-today" class="action-card">
 							<span class="action-icon bg-teal"><i class="bi bi-chat-square-text"></i></span>
 							<span>
 								<span class="action-title d-block">Consultations</span>

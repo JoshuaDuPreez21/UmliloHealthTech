@@ -467,9 +467,9 @@
 			<a href="appointment" class="nav-item-link"><i class="bi bi-people"></i><span class="nav-label">Patients</span></a>
 			<a href="current-appointment" class="nav-item-link"><i class="bi bi-diagram-3"></i><span class="nav-label">Patient Flow</span></a>
 			<a href="capture-appointment" class="nav-item-link"><i class="bi bi-stethoscope"></i><span class="nav-label">Nurse Workspace</span></a>
-			<a href="current-appointment" class="nav-item-link"><i class="bi bi-activity"></i><span class="nav-label">Visits Today</span></a>
-			<a href="#" class="nav-item-link"><i class="bi bi-heart-pulse"></i><span class="nav-label">Vitals Overview</span></a>
-			<a href="#" class="nav-item-link"><i class="bi bi-arrow-left-right"></i><span class="nav-label">Referrals</span></a>
+			<a href="visits-today" class="nav-item-link"><i class="bi bi-activity"></i><span class="nav-label">Visits Today</span></a>
+			<a href="vitals-overview" class="nav-item-link"><i class="bi bi-heart-pulse"></i><span class="nav-label">Vitals Overview</span></a>
+			<a href="referrals" class="nav-item-link"><i class="bi bi-arrow-left-right"></i><span class="nav-label">Referrals</span></a>
 			<a href="screening" class="nav-item-link"><i class="bi bi-clipboard2-pulse"></i><span class="nav-label">Screening</span></a>
 			<a href="health-education" class="nav-item-link active"><i class="bi bi-book"></i><span class="nav-label">Health Education</span></a>
 		</nav>
@@ -618,7 +618,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="js/session-timeout.js"></script>
 <script>
-	var storageKey = "uhtHealthEducation";
 	var contentItems = [];
 	var activeCategory = "";
 
@@ -636,18 +635,6 @@
 			.split(",")
 			.map(function (tag) { return tag.trim(); })
 			.filter(Boolean);
-	}
-
-	function loadContent() {
-		try {
-			contentItems = JSON.parse(localStorage.getItem(storageKey) || "[]");
-		} catch (error) {
-			contentItems = [];
-		}
-	}
-
-	function saveContent() {
-		localStorage.setItem(storageKey, JSON.stringify(contentItems));
 	}
 
 	function showAlert(message) {
@@ -673,33 +660,9 @@
 		clearAlert();
 	}
 
-	function readPdfFile(file) {
-		return new Promise(function (resolve, reject) {
-			if (!file) {
-				resolve(null);
-				return;
-			}
-			if (file.type !== "application/pdf" && !/\.pdf$/i.test(file.name)) {
-				reject(new Error("Please upload a PDF file."));
-				return;
-			}
-			var reader = new FileReader();
-			reader.onload = function () {
-				resolve({
-					name: file.name,
-					dataUrl: reader.result
-				});
-			};
-			reader.onerror = function () {
-				reject(new Error("Unable to read the PDF file."));
-			};
-			reader.readAsDataURL(file);
-		});
-	}
-
 	function openContent(item) {
-		if (item.pdf && item.pdf.dataUrl) {
-			var pdfWindow = window.open(item.pdf.dataUrl, "_blank");
+		if (item.hasPdf) {
+			var pdfWindow = window.open("rest/health-education/file?id=" + encodeURIComponent(item.id), "_blank");
 			if (!pdfWindow) {
 				showAlert("Please allow pop-ups to open the PDF in a new tab.");
 			}
@@ -720,6 +683,16 @@
 		}
 	}
 
+	function setLoadingState(message) {
+		document.getElementById("contentGrid").innerHTML =
+			"<div class=\"empty-state\"><i class=\"bi bi-book\"></i>" + escapeHtml(message) + "</div>";
+	}
+
+	function normalizeTags(tags) {
+		if (Array.isArray(tags)) return tags;
+		return splitTags(tags);
+	}
+
 	function renderContent() {
 		var grid = document.getElementById("contentGrid");
 		var query = document.getElementById("contentSearch").value.trim().toLowerCase();
@@ -729,7 +702,7 @@
 				item.category,
 				item.summary,
 				item.fullContent,
-				(item.tags || []).join(" ")
+				normalizeTags(item.tags).join(" ")
 			].join(" ").toLowerCase();
 			return (!activeCategory || item.category === activeCategory) &&
 				(!query || haystack.indexOf(query) >= 0);
@@ -744,7 +717,7 @@
 		filtered.forEach(function (item) {
 			var card = document.createElement("article");
 			card.className = "content-card";
-			var tags = (item.tags || []).map(function (tag) {
+			var tags = normalizeTags(item.tags).map(function (tag) {
 				return "<span class=\"content-tag\">" + escapeHtml(tag) + "</span>";
 			}).join("");
 			card.innerHTML =
@@ -753,17 +726,37 @@
 						"<h2 class=\"content-title\">" + escapeHtml(item.title) + "</h2>" +
 						"<div class=\"content-meta mt-2\"><span>" + escapeHtml(item.category) + "</span><span>" + escapeHtml(item.contentType) + "</span></div>" +
 					"</div>" +
-					"<span class=\"content-icon\"><i class=\"bi " + (item.pdf ? "bi-file-earmark-pdf" : "bi-journal-text") + "\"></i></span>" +
+					"<span class=\"content-icon\"><i class=\"bi " + (item.hasPdf ? "bi-file-earmark-pdf" : "bi-journal-text") + "\"></i></span>" +
 				"</div>" +
 				"<p class=\"content-summary\">" + escapeHtml(item.summary || "No summary recorded.") + "</p>" +
 				"<div class=\"content-meta\"><span>" + escapeHtml(item.language) + "</span><span>" + escapeHtml(item.audience) + "</span></div>" +
 				"<div class=\"tag-list\">" + tags + "</div>" +
-				"<button class=\"btn btn-outline-primary open-link\" type=\"button\"><i class=\"bi bi-box-arrow-up-right\"></i> " + (item.pdf ? "Open PDF" : "Read") + "</button>";
+				"<button class=\"btn btn-outline-primary open-link\" type=\"button\"><i class=\"bi bi-box-arrow-up-right\"></i> " + (item.hasPdf ? "Open PDF" : "Read") + "</button>";
 			card.querySelector(".open-link").addEventListener("click", function () {
 				openContent(item);
 			});
 			grid.appendChild(card);
 		});
+	}
+
+	function fetchContent() {
+		setLoadingState("Loading health content...");
+		fetch("rest/health-education/list")
+			.then(function (response) {
+				return response.json().then(function (data) { return { status: response.status, data: data }; });
+			})
+			.then(function (result) {
+				if (result.status === 200 && result.data.success) {
+					contentItems = result.data.content || [];
+				} else {
+					contentItems = [];
+				}
+				renderContent();
+			})
+			.catch(function () {
+				contentItems = [];
+				renderContent();
+			});
 	}
 
 	document.getElementById("sidebarToggle").addEventListener("click", function () {
@@ -799,39 +792,44 @@
 			showAlert("Add full content or upload a PDF.");
 			return;
 		}
+		if (file && file.type !== "application/pdf" && !/\.pdf$/i.test(file.name)) {
+			showAlert("Please upload a PDF file.");
+			return;
+		}
 
-		readPdfFile(file)
-			.then(function (pdf) {
-				contentItems.unshift({
-					id: Date.now(),
-					title: title,
-					category: category,
-					contentType: pdf ? "PDF" : contentType,
-					language: document.getElementById("contentLanguage").value,
-					audience: document.getElementById("targetAudience").value,
-					tags: splitTags(document.getElementById("contentTags").value),
-					summary: document.getElementById("contentSummary").value.trim(),
-					fullContent: fullContent,
-					pdf: pdf
-				});
-				try {
-					saveContent();
-				} catch (error) {
-					contentItems.shift();
-					showAlert("This PDF is too large to store in the browser. Try a smaller PDF.");
-					return;
-				}
-				renderContent();
+		var formData = new FormData();
+		formData.append("title", title);
+		formData.append("category", category);
+		formData.append("contentType", contentType);
+		formData.append("language", document.getElementById("contentLanguage").value);
+		formData.append("audience", document.getElementById("targetAudience").value);
+		formData.append("tags", document.getElementById("contentTags").value.trim());
+		formData.append("summary", document.getElementById("contentSummary").value.trim());
+		formData.append("fullContent", fullContent);
+		if (file) formData.append("pdf", file);
+
+		fetch("rest/health-education/save", {
+			method: "POST",
+			body: formData
+		})
+			.then(function (response) {
+				return response.json().then(function (data) { return { status: response.status, data: data }; });
+			})
+			.then(function (result) {
+				if (result.status === 200 && result.data.success) {
 				bootstrap.Modal.getOrCreateInstance(document.getElementById("educationModal")).hide();
 				resetForm();
+					fetchContent();
+				} else {
+					showAlert((result.data && result.data.message) || "Unable to save content.");
+				}
 			})
-			.catch(function (error) {
-				showAlert(error.message || "Unable to save content.");
+			.catch(function () {
+				showAlert("Unable to reach server.");
 			});
 	});
 
-	loadContent();
-	renderContent();
+	fetchContent();
 </script>
 </body>
 </html>
